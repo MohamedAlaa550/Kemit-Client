@@ -1,0 +1,22 @@
+<header class="site-header"><nav class="container nav" aria-label="Main navigation">
+  <a class="brand" routerLink="/" (click)="close()" aria-label="Kemit home"><img src="assets/brand/kemit-logo.jpeg" width="44" height="44" alt="شعار كيميت"><strong>كيميت</strong></a>
+  <button class="menu-toggle" type="button" (click)="toggle()" [attr.aria-expanded]="open()" aria-controls="nav-menu"><span></span><span></span><span></span><b class="sr-only">Menu</b></button>
+  <div id="nav-menu" class="nav-links" [class.open]="open()"><a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}" (click)="close()">{{'home'|t}}</a><a routerLink="/properties" routerLinkActive="active" (click)="close()">{{'properties'|t}}</a><a routerLink="/projects" routerLinkActive="active" (click)="close()">{{'projects'|t}}</a><a routerLink="/developers" routerLinkActive="active" (click)="close()">{{'developers'|t}}</a>@if(auth.isAuthenticated()){<a routerLink="/favorites" routerLinkActive="active" (click)="close()">{{'favorites'|t}}</a><button class="mobile-logout" type="button" (click)="requestLogout()">{{'logout'|t}}</button>}</div>
+  <div class="nav-actions"><button class="language-toggle" type="button" (click)="i18n.toggle()">{{i18n.locale()==='ar'?'EN':'ع'}}</button>
+    @if(auth.isAuthenticated()){<a class="btn btn-ghost btn-sm" routerLink="/profile">{{'account'|t}}</a><a class="btn btn-gold btn-sm" routerLink="/properties/create">{{'addListing'|t}}</a><button class="btn btn-ghost btn-sm logout-button" type="button" (click)="requestLogout()">{{'logout'|t}}</button>}
+    @else{<a class="btn btn-ghost btn-sm" routerLink="/auth/login">{{'login'|t}}</a><a class="btn btn-gold btn-sm" routerLink="/auth/register">{{'startNow'|t}}</a>}
+  </div>
+</nav></header>
+@if(logoutConfirmationOpen()){
+  <div class="confirm-backdrop" (click)="cancelLogout()">
+    <section class="confirm-dialog" role="alertdialog" aria-modal="true" aria-labelledby="logout-title" aria-describedby="logout-message" (click)="$event.stopPropagation()">
+      <div class="confirm-icon" aria-hidden="true">↪</div>
+      <h2 id="logout-title">{{'logoutConfirmTitle'|t}}</h2>
+      <p id="logout-message">{{'logoutConfirmMessage'|t}}</p>
+      <div class="confirm-actions">
+        <button class="btn btn-ghost" type="button" (click)="cancelLogout()">{{'cancel'|t}}</button>
+        <button class="btn btn-danger" type="button" (click)="confirmLogout()" autofocus>{{'confirmLogout'|t}}</button>
+      </div>
+    </section>
+  </div>
+}

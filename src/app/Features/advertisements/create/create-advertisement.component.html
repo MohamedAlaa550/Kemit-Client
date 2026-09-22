@@ -1,0 +1,208 @@
+<section class="section create-page">
+  <div class="container">
+    <a class="back" routerLink="/properties">← {{ 'backListings' | t }}</a>
+    <div class="heading">
+      <p class="eyebrow">{{ 'addListing' | t }}</p>
+      <h1>{{ 'createTitle' | t }}</h1>
+      <p>{{ 'createLead' | t }}</p>
+    </div>
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <fieldset>
+        <legend>{{ 'listingBasics' | t }}</legend>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="publisherType">{{ 'publisherType' | t }}</label
+            ><select id="publisherType" class="form-control" formControlName="publisherType">
+              <option [value]="1">{{ 'owner' | t }}</option>
+              <option [value]="0">{{ 'broker' | t }}</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="type">{{ 'listingType' | t }}</label
+            ><select id="type" class="form-control" formControlName="type">
+              <option [value]="0">{{ 'sell' | t }}</option>
+              <option [value]="1">{{ 'rent' | t }}</option>
+            </select>
+          </div>
+          <div class="form-group wide">
+            <label for="title">{{ 'title' | t }}</label
+            ><input id="title" class="form-control" formControlName="title" maxlength="200" />
+          </div>
+          <div class="form-group wide">
+            <label for="description">{{ 'description' | t }}</label
+            ><textarea
+              id="description"
+              class="form-control"
+              formControlName="description"
+              rows="5"
+            ></textarea>
+          </div>
+          <div class="form-group">
+            <label for="price">{{ 'price' | t }}</label
+            ><input
+              id="price"
+              class="form-control"
+              type="number"
+              min="1"
+              inputmode="decimal"
+              formControlName="price"
+            />
+          </div>
+          <div class="form-group">
+            <label for="phone">{{ 'phone' | t }}</label
+            ><input
+              id="phone"
+              class="form-control"
+              inputmode="tel"
+              placeholder="01xxxxxxxxx"
+              formControlName="phoneNumber"
+            />
+            @if (form.controls.phoneNumber.touched && form.controls.phoneNumber.invalid) {
+              <p class="field-error">{{ 'phoneError' | t }}</p>
+            }
+          </div>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>{{ 'propertyDetails' | t }}</legend>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="propertyType">{{ 'propertyType' | t }}</label
+            ><select
+              id="propertyType"
+              class="form-control"
+              formControlName="propertyType"
+              (change)="propertyTypeChanged()"
+            >
+              @for (item of propertyTypes; track item.value) {
+                <option [value]="item.value">{{ item.labelKey | t }}</option>
+              }
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="area">{{ 'area' | t }}</label
+            ><input id="area" class="form-control" type="number" min="1" formControlName="area" />
+          </div>
+          <div class="form-group">
+            <label for="bedrooms">{{ 'bedrooms' | t }}</label
+            ><input
+              id="bedrooms"
+              class="form-control"
+              type="number"
+              min="0"
+              formControlName="numberOfBedrooms"
+            />
+          </div>
+          <div class="form-group">
+            <label for="bathrooms">{{ 'bathrooms' | t }}</label
+            ><input
+              id="bathrooms"
+              class="form-control"
+              type="number"
+              min="1"
+              formControlName="numberOfBathrooms"
+            />
+          </div>
+          @if (showsNumberOfFloors()) {
+            <div class="form-group">
+              <label for="floors">{{ 'floors' | t }}</label
+              ><input
+                id="floors"
+                class="form-control"
+                type="number"
+                min="0"
+                formControlName="numberOfFloors"
+              />
+            </div>
+          }
+          <div class="form-group">
+            <label for="floor">{{ 'floorNumber' | t }}</label
+            ><input
+              id="floor"
+              class="form-control"
+              type="number"
+              min="0"
+              formControlName="floorNumber"
+            />
+          </div>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>{{ 'location' | t }}</legend>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="governorate">{{ 'governorate' | t }}</label
+            ><select
+              id="governorate"
+              class="form-control"
+              formControlName="governorateId"
+              (change)="governorateChanged()"
+            >
+              <option [value]="0">{{ 'choose' | t }}</option>
+              @for (item of governorates(); track item.id) {
+                <option [value]="item.id">{{ item.name }}</option>
+              }
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="city">{{ 'city' | t }}</label
+            ><select id="city" class="form-control" formControlName="citiesId" (change)="cityChanged()">
+              <option [value]="0">{{ 'choose' | t }}</option>
+              @for (item of cities(); track item.id) {
+                <option [value]="item.id">{{ item.name }}</option>
+              }
+            </select>
+          </div>
+          <input type="hidden" formControlName="latitude" /><input
+            type="hidden"
+            formControlName="longitude"
+          />
+          <div class="map-field wide">
+            <strong>{{ 'mapTitle' | t }}</strong>
+            <p>{{ 'mapHint' | t }}</p>
+            <div id="property-map" class="map-picker"></div>
+            @if (form.controls.latitude.value) {
+              <small>✓ {{ 'selectedLocation' | t }}</small>
+            }
+          </div>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>{{ 'photos' | t }}</legend>
+        <label class="upload" for="images"
+          ><strong>{{ 'uploadPhotos' | t }}</strong
+          ><span>{{ 'photoHint' | t }}</span
+          ><input id="images" type="file" accept="image/*" multiple (change)="filesChanged($event)"
+        /></label>
+        <p class="file-count" [class.invalid]="images().length < 3">
+          {{ images().length }} / 3 {{ 'minimum' | t }}
+        </p>
+        @if (previews().length) {
+          <div class="image-previews">
+            @for (item of previews(); track item.url; let index = $index) {
+              <figure>
+                <img [src]="item.url" [alt]="item.file.name" /><button
+                  type="button"
+                  (click)="removeImage(index)"
+                  [attr.aria-label]="'removePhoto' | t"
+                >
+                  ×
+                </button>
+              </figure>
+            }
+          </div>
+        }
+      </fieldset>
+      @if (form.invalid || images().length < 3) {
+        <p class="form-guidance">{{ 'completeRequired' | t }}</p>
+      }
+      <button
+        class="btn btn-gold submit"
+        type="submit"
+        [disabled]="form.invalid || images().length < 3 || submitting()"
+      >
+        {{ (submitting() ? 'publishing' : 'publish') | t }}
+      </button>
+    </form>
+  </div>
+</section>

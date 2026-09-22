@@ -1,0 +1,46 @@
+<section class="form-shell">
+  <p class="eyebrow">{{ 'signInWelcome' | t }}</p>
+  <h1>{{ 'signInTitle' | t }}</h1>
+  <p class="muted">{{ 'signInLead' | t }}</p>
+  <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <div class="form-group">
+      <label for="email">{{ 'email' | t }}</label
+      ><input
+        class="form-control"
+        id="email"
+        type="email"
+        autocomplete="email"
+        formControlName="email"
+        [attr.aria-invalid]="form.controls.email.touched && form.controls.email.invalid"
+      />
+      @if (form.controls.email.touched && form.controls.email.invalid) {
+        <p class="field-error">{{ 'emailInvalid' | t }}</p>
+      }
+    </div>
+    <div class="form-group">
+      <label for="password">{{ 'password' | t }}</label
+      ><input
+        class="form-control"
+        id="password"
+        type="password"
+        autocomplete="current-password"
+        formControlName="password"
+      />
+      @if (form.controls.password.touched && form.controls.password.invalid) {
+        <p class="field-error">{{ 'passwordRequired' | t }}</p>
+      }
+    </div>
+    <div style="text-align: left">
+      <a class="eyebrow" routerLink="/auth/forgot-password">{{ 'forgotPassword' | t }}</a>
+    </div>
+    <button
+      class="btn btn-gold form-submit"
+      type="submit"
+      [disabled]="form.invalid || submitting()"
+    >
+      {{ (submitting() ? 'signingIn' : 'secureSignIn') | t }}
+    </button>
+  </form>
+  <app-google-sign-in mode="signin" />
+  <p class="form-footer">{{ 'noAccount' | t }} <a routerLink="/auth/register">{{ 'createAccount' | t }}</a></p>
+</section>

@@ -1,59 +1,61 @@
-# KemitClient
+# Kemit Client
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.1.8.
+واجهة كيميت العقارية مبنية بـ Angular 22 وTailwind CSS 4 وSSR، ومصممة مباشرة حول Controllers وDTOs الخاصة بـ Kemit ASP.NET Core API.
 
-## Development server
+## التشغيل المحلي
 
-To start a local development server, run:
+```powershell
+# Backend — من مجلد Kemit
+dotnet run --project Kemit/Kemit.csproj --launch-profile https
 
-```bash
-ng serve
+# Frontend — من مجلد Kemit-Client
+npm install
+npm start
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+- Frontend: `http://localhost:4200`
+- Backend API: `https://localhost:7289/api`
+- يمكن تعديل عنوان الإنتاج في `src/environments/environment.production.ts`.
 
-## Code scaffolding
+## تفعيل التسجيل باستخدام Google
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+1. أنشئ OAuth 2.0 Client من نوع **Web application** في Google Cloud Console.
+2. أضف `http://localhost:4200` إلى **Authorized JavaScript origins**، وأضف نطاق الموقع الحقيقي عند النشر.
+3. ضع نفس Client ID في `googleClientId` داخل:
+   - `src/environments/environment.ts`
+   - `src/environments/environment.production.ts`
+4. خزّنه للـ API محليًا بدون وضعه في ملفات الأسرار:
 
-```bash
-ng generate component component-name
+```powershell
+dotnet user-secrets set "JwtOptions:GoogleClientId" "YOUR_CLIENT_ID.apps.googleusercontent.com" --project ..\Kemit\Kemit\Kemit.csproj
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+في بيئة النشر استخدم متغير البيئة `JwtOptions__GoogleClientId`. الـ Client ID ليس سرًا، لكن يجب أن تكون قيمته واحدة في الواجهة والـ API حتى ينجح فحص `audience`.
 
-```bash
-ng generate --help
+## المعمارية
+
+- `Core/Models`: عقود TypeScript المطابقة لـ backend DTOs.
+- `Core/Services`: Auth وProjects وUnits وAdvertisements وDevelopers وFavorites وLocations.
+- `Core/Interceptors`: JWT headers، loading، ومعالجة الأخطاء.
+- `Core/Guards`: حماية صفحات الحساب والمفضلة ومسارات الضيف.
+- `Shared/Components`: header/footer/cards/search/loading/toasts.
+- `Features`: صفحات lazy-loaded حسب المجال.
+
+## السلوك والأمان
+
+- الحالة المشتركة مبنية على Angular Signals.
+- جلسة المستخدم تعتمد على `HttpOnly + Secure + SameSite=None` cookies، ولا تُخزن JWT أو Refresh Token في `localStorage`.
+- يتم تدوير Refresh Token تلقائيًا واستعادة الجلسة من الخادم عند إعادة تحميل الصفحة.
+- الطلبات التي تستخدم Cookie authentication محمية بهيدر مخصص مع CORS credentials لتقليل مخاطر CSRF.
+- النماذج لا تُرسل إلا إذا كانت صالحة، والزر يتعطل أثناء الإرسال.
+- البحث اللحظي يستخدم `450ms debounce` و`distinctUntilChanged` و`switchMap` لإلغاء الطلب القديم.
+- استعادة كلمة المرور محمية بـ cooldown في الواجهة وRate Limiting في الـ API: خمس محاولات لكل IP خلال 15 دقيقة.
+- التطبيق يستخدم SSR/Prerender، metadata ديناميكية، canonical، robots، manifest، lazy loading، واحترام `prefers-reduced-motion`.
+
+## التحقق
+
+```powershell
+npm run build
+npm test
+dotnet build Kemit/Kemit.csproj --no-restore
 ```
-
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.

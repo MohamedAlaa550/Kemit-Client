@@ -1,0 +1,150 @@
+<section class="profile-page section">
+  <div class="container">
+    @if (auth.currentUser(); as user) {
+      <header class="profile-hero">
+        <div class="identity">
+          <img
+            [src]="avatar()"
+            width="104"
+            height="104"
+            [alt]="user.fullName || user.userName || 'المستخدم'"
+            (error)="avatarLoadFailed($event)"
+          />
+          <div>
+            <p class="eyebrow">{{'privateSpace'|t}}</p>
+            <h1>{{ user.fullName || user.userName || ('kemitUser'|t) }}</h1>
+            <p>{{ user.email }}</p>
+          </div>
+        </div>
+        <a class="btn btn-gold" routerLink="/properties/create">+ {{'addNewListing'|t}}</a>
+      </header>
+
+      <div class="stats" [attr.aria-label]="'listingsSummary'|t">
+        <article>
+          <span>{{'allListings'|t}}</span><strong>{{ totalAds() }}</strong>
+        </article>
+        <article class="pending">
+          <span>{{'pendingReview'|t}}</span><strong>{{ pendingAds() }}</strong>
+        </article>
+        <article class="approved">
+          <span>{{'published'|t}}</span><strong>{{ approvedAds().length }}</strong>
+        </article>
+        <article class="rejected">
+          <span>{{'rejected'|t}}</span><strong>{{ rejectedAds() }}</strong>
+        </article>
+      </div>
+
+      <div class="profile-grid">
+        <aside class="personal-card">
+          <div class="card-title">
+            <span>♙</span>
+            <div>
+              <p class="eyebrow">{{'accountData'|t}}</p>
+              <h2>{{'personalInfo'|t}}</h2>
+            </div>
+          </div>
+          <dl>
+            <div>
+              <dt>{{'firstName'|t}}</dt><dd>{{ user.firstName || ('notProvided'|t) }}</dd>
+            </div>
+            <div>
+              <dt>{{'lastName'|t}}</dt><dd>{{ user.lastName || ('notProvided'|t) }}</dd>
+            </div>
+            <div>
+              <dt>{{'email'|t}}</dt>
+              <dd>{{ user.email }}</dd>
+            </div>
+            <div>
+              <dt>{{'phone'|t}}</dt><dd dir="ltr">{{ user.phoneNumber || ('notProvided'|t) }}</dd>
+            </div>
+            <div>
+              <dt>{{'accountType'|t}}</dt>
+              <dd>{{ user.subscriptionType || 'Free' }}</dd>
+            </div>
+            <div>
+              <dt>{{'accountStatus'|t}}</dt><dd class="active-dot">{{'active'|t}}</dd>
+            </div>
+          </dl>
+        </aside>
+
+        <main>
+          <section class="notifications-card">
+            <div class="card-title">
+              <span>♢</span>
+              <div>
+                <p class="eyebrow">{{'latestUpdates'|t}}</p><h2>{{'yourNotifications'|t}}</h2>
+              </div>
+            </div>
+            @if (approvedAds().length) {
+              <div class="notification-list">
+                @for (ad of approvedAds(); track ad.id) {
+                  <a [routerLink]="['/properties', ad.id]" class="notification approved-note">
+                    <b>✓</b>
+                    <div>
+                      <strong>{{'listingApproved'|t}}</strong><p>«{{ ad.title }}» {{'nowPublished'|t}}</p>
+                    </div>
+                    <time>{{ ad.createdAt | date: 'd MMM y' : '' : 'ar-EG' }}</time>
+                  </a>
+                }
+              </div>
+            } @else {
+              <div class="quiet-state">
+                <span>♢</span>
+                <p>{{'noNotifications'|t}}</p>
+              </div>
+            }
+          </section>
+
+          <section class="ads-card">
+            <div class="ads-heading">
+              <div class="card-title">
+                <span>⌂</span>
+                <div>
+                  <p class="eyebrow">{{'contentManagement'|t}}</p><h2>{{'myListings'|t}}</h2>
+                </div>
+              </div>
+              <b>{{ totalAds() }} {{'listing'|t}}</b>
+            </div>
+            @if (ads().length) {
+              <div class="my-ads">
+                @for (ad of ads(); track ad.id) {
+                  <article class="ad-row">
+                    <img
+                      [src]="adImage(ad)"
+                      width="112"
+                      height="82"
+                      [alt]="ad.title"
+                      loading="lazy"
+                    />
+                    <div class="ad-info">
+                      <div>
+                        <span class="status" [attr.data-status]="statusKey(ad.status)">{{
+                          statusLabel(ad.status)
+                        }}</span
+                        ><time>{{ ad.createdAt | date: 'd MMM y' : '' : 'ar-EG' }}</time>
+                      </div>
+                      <h3>{{ ad.title }}</h3>
+                      <p>{{ ad.cityName }}، {{ ad.governorateName }} · {{ ad.area }} {{i18n.locale()==='ar'?'م²':'m²'}}</p>
+                    </div>
+                    <strong class="price">{{ad.price|number:'1.0-0'}} {{'egp'|t}}</strong>
+                    <a
+                      class="open-ad"
+                      [routerLink]="['/properties', ad.id]"
+                      [attr.aria-label]="('openListing'|t) + ' ' + ad.title"
+                      >←</a
+                    >
+                  </article>
+                }
+              </div>
+            } @else if (!loadingAds()) {
+              <div class="quiet-state">
+                <span>⌂</span>
+                <p>{{'noOwnListings'|t}}</p><a class="btn btn-gold btn-sm" routerLink="/properties/create">{{'addFirstListing'|t}}</a>
+              </div>
+            }
+          </section>
+        </main>
+      </div>
+    }
+  </div>
+</section>

@@ -1,8 +1,1 @@
-import { RenderMode, ServerRoute } from '@angular/ssr';
-
-export const serverRoutes: ServerRoute[] = [
-  {
-    path: '**',
-    renderMode: RenderMode.Prerender
-  }
-];
+import{RenderMode,ServerRoute}from'@angular/ssr';export const serverRoutes:ServerRoute[]=[{path:'projects/:id',renderMode:RenderMode.Server},{path:'properties/:id',renderMode:RenderMode.Server},{path:'profile',renderMode:RenderMode.Server},{path:'favorites',renderMode:RenderMode.Server},{path:'reset-password',renderMode:RenderMode.Client},{path:'auth/reset-password',renderMode:RenderMode.Client},{path:'**',renderMode:RenderMode.Prerender}];

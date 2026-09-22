@@ -1,0 +1,156 @@
+<section class="form-shell">
+  <p class="eyebrow">{{'joinKemit'|t}}</p>
+  <h1>{{'registerTitle'|t}}</h1>
+  <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem">
+      <div class="form-group">
+        <label for="first">{{'firstName'|t}}</label
+        ><input
+          class="form-control"
+          id="first"
+          formControlName="firstName"
+          autocomplete="given-name"
+        />
+        @if (form.controls.firstName.touched && form.controls.firstName.invalid) {
+          <p class="field-error">{{'requiredFirstName'|t}}</p>
+        }
+      </div>
+      <div class="form-group">
+        <label for="last">{{'lastName'|t}}</label
+        ><input
+          class="form-control"
+          id="last"
+          formControlName="lastName"
+          autocomplete="family-name"
+        />
+        @if (form.controls.lastName.touched && form.controls.lastName.invalid) {
+          <p class="field-error">{{'requiredLastName'|t}}</p>
+        }
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="username">{{'username'|t}}</label
+      ><input
+        class="form-control"
+        id="username"
+        formControlName="userName"
+        autocomplete="username"
+      />
+      @if (form.controls.userName.touched && form.controls.userName.invalid) {
+        <p class="field-error">{{'usernameError'|t}}</p>
+      }
+    </div>
+    <div class="form-group">
+      <label for="reg-email">{{'email'|t}}</label
+      ><input
+        class="form-control"
+        id="reg-email"
+        type="email"
+        formControlName="email"
+        autocomplete="email"
+      />
+      @if (form.controls.email.touched && form.controls.email.hasError('emailExists')) {
+        <p class="field-error">{{'emailExists'|t}}</p>
+      } @else if (form.controls.email.touched && form.controls.email.invalid) {
+        <p class="field-error">{{'emailInvalid'|t}}</p>
+      }
+    </div>
+    <div class="form-group">
+      <label for="phone">{{'phone'|t}}</label
+      ><input
+        class="form-control"
+        id="phone"
+        type="tel"
+        formControlName="phoneNumber"
+        placeholder="01xxxxxxxxx"
+      />
+      @if (form.controls.phoneNumber.touched && form.controls.phoneNumber.invalid) {
+        <p class="field-error">{{'phoneError'|t}}</p>
+      }
+    </div>
+    <div class="form-group">
+      <label for="reg-pass">{{'password'|t}}</label>
+      <div class="password-field">
+        <input
+          class="form-control"
+          id="reg-pass"
+          [type]="showPassword() ? 'text' : 'password'"
+          formControlName="password"
+          autocomplete="new-password"
+        /><button
+          class="password-toggle"
+          type="button"
+          (click)="togglePassword()"
+          [attr.aria-label]="(showPassword() ? 'hidePassword' : 'showPassword') | t"
+          [attr.aria-pressed]="showPassword()"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            @if (showPassword()) {
+              <path
+                d="M3 3l18 18M10.6 10.7a2 2 0 0 0 2.7 2.7M9.9 4.2A10.8 10.8 0 0 1 12 4c5.5 0 9 5.5 9 5.5a16 16 0 0 1-2.1 2.6M6.2 6.2C4.1 7.6 3 9.5 3 9.5S6.5 15 12 15c1 0 2-.2 2.8-.5"
+              />
+            } @else {
+              <path d="M3 12s3.5-5.5 9-5.5 9 5.5 9 5.5-3.5 5.5-9 5.5S3 12 3 12Z" />
+              <circle cx="12" cy="12" r="2.5" />
+            }
+          </svg>
+        </button>
+      </div>
+      <p class="muted" style="font-size: 0.78rem">{{'passwordHint'|t}}</p>
+      @if (form.controls.password.touched && form.controls.password.invalid) {
+        <p class="field-error">{{'passwordRulesError'|t}}</p>
+      }
+    </div>
+    <div class="form-group">
+      <label for="confirm">{{'confirmPassword'|t}}</label>
+      <div class="password-field">
+        <input
+          class="form-control"
+          id="confirm"
+          [type]="showConfirmPassword() ? 'text' : 'password'"
+          formControlName="confirmPassword"
+          autocomplete="new-password"
+        /><button
+          class="password-toggle"
+          type="button"
+          (click)="toggleConfirmPassword()"
+          [attr.aria-label]="(showConfirmPassword() ? 'hidePassword' : 'showPassword') | t"
+          [attr.aria-pressed]="showConfirmPassword()"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            @if (showConfirmPassword()) {
+              <path
+                d="M3 3l18 18M10.6 10.7a2 2 0 0 0 2.7 2.7M9.9 4.2A10.8 10.8 0 0 1 12 4c5.5 0 9 5.5 9 5.5a16 16 0 0 1-2.1 2.6M6.2 6.2C4.1 7.6 3 9.5 3 9.5S6.5 15 12 15c1 0 2-.2 2.8-.5"
+              />
+            } @else {
+              <path d="M3 12s3.5-5.5 9-5.5 9 5.5 9 5.5-3.5 5.5-9 5.5S3 12 3 12Z" />
+              <circle cx="12" cy="12" r="2.5" />
+            }
+          </svg>
+        </button>
+      </div>
+      @if (
+        form.controls.confirmPassword.touched && form.controls.confirmPassword.hasError('required')
+      ) {
+        <p class="field-error">{{'confirmRequired'|t}}</p>
+      } @else if (form.controls.confirmPassword.touched && form.hasError('fieldsMismatch')) {
+        <p class="field-error">{{'passwordsMismatch'|t}}</p>
+      }
+    </div>
+    <div class="form-group">
+      <label for="avatar">{{'avatarOptional'|t}}</label
+      ><input
+        class="form-control"
+        id="avatar"
+        type="file"
+        accept="image/png,image/jpeg,image/webp"
+        (change)="file($event)"
+      />
+    </div>
+    <button class="btn btn-gold form-submit" type="submit" [disabled]="submitting()">
+      {{(submitting()?'creatingAccount':'registerTitle')|t}}
+    </button>
+  </form>
+  <app-google-sign-in mode="signup" />
+  <p class="form-footer">{{'alreadyAccount'|t}} <a routerLink="/auth/login">{{'signInTitle'|t}}</a></p>
+</section>

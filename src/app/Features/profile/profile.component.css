@@ -1,0 +1,332 @@
+.profile-page {
+  background: radial-gradient(circle at 90% 4%, #3a290e42, transparent 28%);
+}
+.profile-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: 1.7rem;
+  background: linear-gradient(135deg, #17140f, #0b0b0b);
+  box-shadow: var(--shadow-card);
+}
+.identity {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+}
+.identity img {
+  width: 104px;
+  height: 104px;
+  border: 2px solid var(--color-primary);
+  border-radius: 1.4rem;
+  object-fit: cover;
+  box-shadow: var(--shadow-gold);
+}
+.identity h1 {
+  margin: 0.15rem 0;
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  line-height: 1.2;
+}
+.identity p:last-child {
+  margin: 0;
+  color: var(--color-muted);
+}
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.stats article {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.1rem 1.25rem;
+  border: 1px solid var(--color-border);
+  border-radius: 1.1rem;
+  background: #101010;
+}
+.stats span {
+  color: var(--color-muted);
+}
+.stats strong {
+  font-size: 1.7rem;
+  color: var(--color-primary);
+}
+.stats .pending strong {
+  color: #f1c55c;
+}
+.stats .approved strong {
+  color: #65c488;
+}
+.stats .rejected strong {
+  color: #ef8b8b;
+}
+.profile-grid {
+  display: grid;
+  grid-template-columns: 330px 1fr;
+  gap: 1rem;
+  align-items: start;
+}
+.personal-card,
+.notifications-card,
+.ads-card {
+  border: 1px solid var(--color-border);
+  border-radius: 1.5rem;
+  background: linear-gradient(145deg, #141414, #0a0a0a);
+  box-shadow: var(--shadow-card);
+}
+.personal-card {
+  position: sticky;
+  top: 86px;
+  padding: 1.4rem;
+}
+.card-title {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+.card-title > span {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border-radius: 12px;
+  background: #2c210e;
+  color: var(--color-primary);
+  font-size: 1.3rem;
+}
+.card-title h2 {
+  margin: 0;
+  font-size: 1.15rem;
+}
+.card-title p {
+  margin: 0;
+}
+.personal-card dl {
+  margin: 1.4rem 0 0;
+}
+.personal-card dl div {
+  padding: 0.75rem 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+dt {
+  color: var(--color-muted);
+  font-size: 0.75rem;
+}
+dd {
+  margin: 0.15rem 0 0;
+  color: var(--gray-100);
+  overflow-wrap: anywhere;
+}
+.active-dot:before {
+  content: '';
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-inline-end: 0.45rem;
+  border-radius: 50%;
+  background: var(--green-400);
+  box-shadow: 0 0 10px var(--green-400);
+}
+main {
+  display: grid;
+  gap: 1rem;
+}
+.notifications-card,
+.ads-card {
+  padding: 1.4rem;
+}
+.notification-list {
+  display: grid;
+  gap: 0.7rem;
+  margin-top: 1.2rem;
+}
+.notification {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 1rem;
+  border: 1px solid #285d3b;
+  border-radius: 1rem;
+  background: linear-gradient(135deg, #102218, #0c130e);
+  transition: 0.2s;
+}
+.notification:hover {
+  border-color: var(--green-400);
+  transform: translateY(-2px);
+}
+.notification > b {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border-radius: 50%;
+  background: #1d6338;
+  color: #d9ffe6;
+}
+.notification strong {
+  color: #d9ffe6;
+}
+.notification p {
+  margin: 0.1rem 0 0;
+  color: #8fb59a;
+  font-size: 0.8rem;
+}
+.notification time,
+.ad-info time {
+  color: var(--color-muted);
+  font-size: 0.72rem;
+}
+.ads-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.ads-heading > b {
+  color: var(--color-primary);
+}
+.my-ads {
+  display: grid;
+  gap: 0.7rem;
+  margin-top: 1.2rem;
+}
+.ad-row {
+  display: grid;
+  grid-template-columns: 112px 1fr auto auto;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 1rem;
+  background: #0d0d0d;
+}
+.ad-row > img {
+  width: 112px;
+  height: 82px;
+  border-radius: 0.7rem;
+  object-fit: cover;
+}
+.ad-info > div {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+.ad-info h3 {
+  margin: 0.25rem 0 0;
+  font-size: 1rem;
+}
+.ad-info p {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.76rem;
+}
+.status {
+  padding: 0.16rem 0.55rem;
+  border-radius: 99px;
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+.status[data-status='pending'] {
+  background: #392b0f;
+  color: #f1c55c;
+}
+.status[data-status='approved'] {
+  background: #13351f;
+  color: #72d896;
+}
+.status[data-status='rejected'] {
+  background: #3a1717;
+  color: #f19a9a;
+}
+.status[data-status='expired'] {
+  background: #262626;
+  color: #aaa;
+}
+.price {
+  color: var(--color-primary);
+  white-space: nowrap;
+}
+.open-ad {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+  color: var(--color-primary);
+}
+.quiet-state {
+  display: grid;
+  justify-items: center;
+  gap: 0.5rem;
+  padding: 2rem;
+  margin-top: 1rem;
+  border: 1px dashed var(--color-border);
+  border-radius: 1rem;
+  color: var(--color-muted);
+  text-align: center;
+}
+.quiet-state > span {
+  font-size: 1.8rem;
+  color: var(--color-primary);
+}
+.quiet-state p {
+  margin: 0;
+}
+@media (max-width: 900px) {
+  .profile-grid {
+    grid-template-columns: 1fr;
+  }
+  .personal-card {
+    position: static;
+  }
+  .stats {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media (max-width: 620px) {
+  .profile-hero {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .identity {
+    align-items: flex-start;
+  }
+  .identity img {
+    width: 76px;
+    height: 76px;
+  }
+  .stats {
+    grid-template-columns: 1fr 1fr;
+  }
+  .stats article {
+    display: grid;
+  }
+  .ad-row {
+    grid-template-columns: 82px 1fr auto;
+  }
+  .ad-row > img {
+    width: 82px;
+    height: 72px;
+  }
+  .price {
+    grid-column: 2;
+  }
+  .open-ad {
+    grid-column: 3;
+    grid-row: 1/3;
+  }
+  .notification {
+    grid-template-columns: auto 1fr;
+  }
+  .notification time {
+    grid-column: 2;
+  }
+}

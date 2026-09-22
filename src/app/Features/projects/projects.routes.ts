@@ -1,0 +1,1 @@
+import{Routes}from'@angular/router';export const PROJECT_ROUTES:Routes=[{path:'',loadComponent:()=>import('./list/projects-list.component').then(m=>m.ProjectsListComponent)},{path:':id',loadComponent:()=>import('./details/project-details.component').then(m=>m.ProjectDetailsComponent)}];

@@ -1,0 +1,1 @@
+:host{display:flex;min-height:100dvh;flex-direction:column}main{flex:1}.skip-link{position:fixed;top:-5rem;inset-inline-start:1rem;z-index:200;background:var(--color-primary);color:var(--color-on-primary);padding:.7rem 1rem;border-radius:var(--radius-md)}.skip-link:focus{top:1rem}

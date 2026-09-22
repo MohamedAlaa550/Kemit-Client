@@ -1,0 +1,8 @@
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { Project } from '../../../Core/Models/api.models';
+import { ProjectsService } from '../../../Core/Services/projects.service';
+import { SeoService } from '../../../Core/Services/seo.service';
+import { ListingCardComponent } from '../../../Shared/Components/listing-card/listing-card.component';
+import { TranslatePipe } from '../../../Shared/Pipes/translate.pipe';
+@Component({selector:'app-projects-list',imports:[ListingCardComponent,TranslatePipe],template:`<section class="section"><div class="container"><p class="eyebrow">{{'projectsGuide'|t}}</p><div class="section-heading"><div><h1>{{'featuredProjects'|t}}</h1><p class="muted">{{'directApiData'|t}}</p></div><select class="form-control" style="width:auto" [attr.aria-label]="'sorting'|t" (change)="load($any($event.target).value)"><option value="">{{'newestFirst'|t}}</option><option value="PriceAsc">{{'leastExpensive'|t}}</option><option value="PriceDesc">{{'mostExpensive'|t}}</option></select></div>@if(items().length){<div class="grid-cards">@for(item of items();track item.id){<app-listing-card [item]="item"/>}</div>}@else{<div class="empty-state">{{'noProjects'|t}}</div>}</div></section>`,changeDetection:ChangeDetectionStrategy.OnPush})
+export class ProjectsListComponent { private api=inject(ProjectsService); readonly items=signal<Project[]>([]); constructor(){inject(SeoService).update('المشروعات','قارن مشروعات كيميت العقارية.','/projects');this.load();} load(sort=''){this.api.getAll({pageSize:50,sort}).subscribe({next:r=>this.items.set(r.data),error:()=>this.items.set([])});}}

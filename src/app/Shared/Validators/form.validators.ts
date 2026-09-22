@@ -1,0 +1,1 @@
+import{AbstractControl,ValidationErrors,ValidatorFn}from'@angular/forms';export function matchFields(a:string,b:string):ValidatorFn{return(c:AbstractControl):ValidationErrors|null=>c.get(a)?.value===c.get(b)?.value?null:{fieldsMismatch:true}}
