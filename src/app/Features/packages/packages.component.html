@@ -1,0 +1,40 @@
+<section class="packages-page section">
+  <div class="container">
+    <header class="packages-hero">
+      <span>{{ text('خطط مرنة لبيع أسرع', 'Flexible plans for faster results') }}</span>
+      <h1>{{ text('اختر قوة ظهور إعلانك', 'Choose your listing visibility') }}</h1>
+      <p>{{ text('لكل مستخدم إعلانان مجانيان، وبعدهما يمكنك شراء إعلان واحد أو اختيار باقة توفر أكثر.', 'Every user gets two free listings, then can buy one listing or choose a better-value bundle.') }}</p>
+      @if (account(); as current) {
+        @if (current.isUnlimitedPublishing) {
+          <div class="balance">{{ text('نشر إعلانات غير محدود للحساب الإداري', 'Unlimited listings for admin account') }}</div>
+        } @else {
+          <div class="balance"><b>{{ current.freeAdvertisementsRemaining }}</b> {{ text('إعلان مجاني متبقٍ', 'free listings remaining') }}</div>
+        }
+      }
+    </header>
+
+    <div class="plans-grid">
+      @for (plan of plans(); track plan.type) {
+        <article class="plan" [class.popular]="plan.type === 2" [class.vip]="plan.type === 3">
+          @if (plan.type === 2) { <span class="ribbon">{{ text('الأكثر توفيرًا', 'Best value') }}</span> }
+          @if (plan.type === 3) { <span class="ribbon">VIP</span> }
+          <p class="plan-kicker">KEMET ADS</p>
+          <h2>{{ planTitle(plan.type) }}</h2>
+          <div class="price"><strong>{{ plan.price | number:'1.0-0' }}</strong><span>{{ text('جنيه', 'EGP') }}</span></div>
+          <p class="duration">{{ plan.durationDays }} {{ plan.type === 1 ? text('يومًا من نشر الإعلان', 'days from publishing') : text('يومًا من تاريخ الدفع', 'days from payment') }}</p>
+          <ul>
+            <li>✓ {{ plan.advertisementCount }} {{ text(plan.advertisementCount === 1 ? 'إعلان' : 'إعلانات', plan.advertisementCount === 1 ? 'listing' : 'listings') }}</li>
+            <li>✓ {{ priority(plan.type) }}</li>
+            <li>✓ {{ text(plan.type === 3 ? 'وسم إعلان VIP' : 'تصميم إعلان مميز', plan.type === 3 ? 'VIP listing badge' : 'Distinctive listing design') }}</li>
+            @if (plan.includesAnalytics) { <li>✓ {{ text('إحصائيات مشاهدات الإعلانات', 'Listing view analytics') }}</li> }
+            @if (plan.includesMemberBadge) { <li>✓ {{ text('وسم عميل مميز في الملف الشخصي', 'Premium customer profile badge') }}</li> }
+          </ul>
+          <button type="button" (click)="buy(plan)" [disabled]="purchasing() !== null">
+            {{ purchasing() === plan.type ? text('جارٍ فتح الدفع...', 'Opening checkout...') : text('اختيار الباقة', 'Choose plan') }}
+          </button>
+        </article>
+      }
+    </div>
+    <p class="secure-note">🔒 {{ text('الدفع يتم بأمان من خلال Paymob، ولا نخزن بيانات بطاقتك.', 'Secure checkout by Paymob. Kemet never stores your card details.') }}</p>
+  </div>
+</section>

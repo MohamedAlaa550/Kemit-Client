@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject, signal } from '@angular/core';
 import { Observable, finalize, of, shareReplay, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { ApiMessage, Favorite } from '../Models/api.models';
+import { ApiMessage, Favorite, Unit } from '../Models/api.models';
 
 @Injectable({ providedIn: 'root' })
 export class FavoritesService {
@@ -52,6 +52,10 @@ export class FavoritesService {
       tap(result => this.updateId(advertisementId, result.isFavorite)),
     );
   }
+  getUnits() { return this.http.get<Unit[]>(`${environment.apiUrl}/Favorites/units`); }
+  addUnit(unitId: number) { return this.http.post<ApiMessage>(`${environment.apiUrl}/Favorites/units/${unitId}`, {}); }
+  removeUnit(unitId: number) { return this.http.delete<ApiMessage>(`${environment.apiUrl}/Favorites/units/${unitId}`); }
+  checkUnit(unitId: number) { return this.http.get<{ isFavorite: boolean }>(`${environment.apiUrl}/Favorites/units/check/${unitId}`); }
 
   private updateId(advertisementId: number, favorite: boolean) {
     const ids = new Set(this.favoriteIds());

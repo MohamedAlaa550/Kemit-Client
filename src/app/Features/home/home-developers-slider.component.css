@@ -1,0 +1,50 @@
+/* Final developer-slider overrides: a single softly illuminated frame. */
+.developers-frame {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.developers-header {
+  margin-bottom: .9rem;
+}
+
+.developer-carousel {
+  border: 1px solid #cdbb8773;
+  background: radial-gradient(ellipse at 50% 0, #7b633018, transparent 28%), #050706;
+  box-shadow: 0 0 8px #dbc47d42, 0 0 22px #d1b56220, inset 0 0 28px #b99a4912;
+}
+
+.developer-carousel::before {
+  display: none;
+}
+
+.developer-carousel::after {
+  display: none;
+}
+
+.developer-slide {
+  min-height: 154px;
+  grid-template-rows: auto auto;
+}
+
+.developer-logo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  object-fit: cover;
+  object-position: center;
+}
+
+.developer-nav,
+.developer-nav:hover {
+  background: transparent;
+  box-shadow: none;
+}
+
+@media (max-width: 680px) {
+  .developers-frame { padding: 0; }
+}

@@ -7,7 +7,7 @@ import {
 import { firstValueFrom } from 'rxjs';
 import { registerLocaleData } from '@angular/common';
 import localeArEg from '@angular/common/locales/ar-EG';
-import { provideRouter, withInMemoryScrolling, withViewTransitions } from '@angular/router';
+import { provideRouter, withInMemoryScrolling } from '@angular/router';
 import { routes } from './app.routes';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
@@ -28,7 +28,6 @@ export const appConfig: ApplicationConfig = {
     provideRouter(
       routes,
       withInMemoryScrolling({ scrollPositionRestoration: 'top' }),
-      withViewTransitions(),
     ),
     provideClientHydration(withEventReplay()),
     provideHttpClient(

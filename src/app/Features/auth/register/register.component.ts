@@ -1,123 +1,88 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { EMPTY, finalize, switchMap } from 'rxjs';
+import { finalize } from 'rxjs';
+import { TranslationService } from '../../../Core/I18n/translation.service';
 import { AuthService } from '../../../Core/Services/auth.service';
 import { NotificationService } from '../../../Core/Services/notification.service';
 import { SeoService } from '../../../Core/Services/seo.service';
 import { GoogleSignInComponent } from '../../../Shared/Components/google-sign-in/google-sign-in.component';
 import { matchFields } from '../../../Shared/Validators/form.validators';
-import { TranslatePipe } from '../../../Shared/Pipes/translate.pipe';
-import { TranslationService } from '../../../Core/I18n/translation.service';
+
 @Component({
   selector: 'app-register',
-  imports: [ReactiveFormsModule, RouterLink, GoogleSignInComponent, TranslatePipe],
+  imports: [ReactiveFormsModule, RouterLink, GoogleSignInComponent],
   templateUrl: './register.component.html',
-  styles: [
-    `
-      .password-field {
-        position: relative;
-      }
-      .password-field .form-control {
-        padding-inline-end: 3.2rem;
-      }
-      .password-toggle {
-        position: absolute;
-        top: 50%;
-        inset-inline-end: 0.65rem;
-        display: grid;
-        width: 36px;
-        height: 36px;
-        place-items: center;
-        transform: translateY(-50%);
-        border: 0;
-        border-radius: 50%;
-        background: transparent;
-        color: var(--color-muted);
-        cursor: pointer;
-      }
-      .password-toggle:hover,
-      .password-toggle:focus-visible {
-        background: rgba(227, 184, 79, 0.1);
-        color: var(--color-primary);
-      }
-      .password-toggle svg {
-        width: 20px;
-        height: 20px;
-        fill: none;
-        stroke: currentColor;
-        stroke-width: 1.8;
-      }
-    `,
-  ],
+  styles: [`
+    .two-columns{display:grid;grid-template-columns:1fr 1fr;gap:.7rem}
+    .password-hint{margin-top:.35rem}
+    @media(max-width:520px){.two-columns{grid-template-columns:1fr}}
+  `],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RegisterComponent {
-  private fb = inject(FormBuilder);
-  private auth = inject(AuthService);
-  private router = inject(Router);
-  private notices = inject(NotificationService);
+  private readonly fb = inject(FormBuilder);
+  private readonly auth = inject(AuthService);
+  private readonly router = inject(Router);
+  private readonly notices = inject(NotificationService);
   readonly i18n = inject(TranslationService);
   readonly submitting = signal(false);
   readonly avatar = signal<File | null>(null);
-  readonly showPassword = signal(false);
-  readonly showConfirmPassword = signal(false);
-  readonly form = this.fb.nonNullable.group(
-    {
-      firstName: ['', Validators.required],
-      lastName: ['', Validators.required],
-      userName: ['', [Validators.required, Validators.minLength(3)]],
-      email: ['', [Validators.required, Validators.email]],
-      phoneNumber: ['', [Validators.required, Validators.pattern(/^01[0125][0-9]{8}$/)]],
-      password: [
-        '',
-        [
-          Validators.required,
-          Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/),
-        ],
-      ],
-      confirmPassword: ['', Validators.required],
-    },
-    { validators: matchFields('password', 'confirmPassword') },
-  );
+  readonly passwordVisible = signal(false);
+  readonly confirmPasswordVisible = signal(false);
+
+  readonly form = this.fb.nonNullable.group({
+    firstName: ['', [Validators.required, Validators.maxLength(100)]],
+    lastName: ['', [Validators.required, Validators.maxLength(100)]],
+    email: ['', [Validators.required, Validators.email]],
+    phoneNumber: ['', [Validators.required, Validators.pattern(/^01[0125][0-9]{8}$/)]],
+    password: ['', [Validators.required, Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/)]],
+    confirmPassword: ['', Validators.required],
+  }, { validators: matchFields('password', 'confirmPassword') });
+
   constructor() {
-    inject(SeoService).update('إنشاء حساب', 'أنشئ حسابًا على كيميت.', '/auth/register');
+    inject(SeoService).updateLocalized(
+      'إنشاء حساب',
+      'Create account',
+      'أنشئ حساب كيميت بالبريد الإلكتروني أو Google، وأكد رقمك عند نشر إعلان.',
+      'Create your Kemet account with email or Google, then verify your number when publishing.',
+      '/auth/register',
+    );
   }
-  file(e: Event) {
-    this.avatar.set((e.target as HTMLInputElement).files?.[0] ?? null);
-  }
-  togglePassword() {
-    this.showPassword.update((value) => !value);
-  }
-  toggleConfirmPassword() {
-    this.showConfirmPassword.update((value) => !value);
-  }
-  submit() {
-    if (this.form.invalid || this.submitting()) {
-      this.form.markAllAsTouched();
+
+  text(ar: string, en: string): string { return this.i18n.locale() === 'ar' ? ar : en; }
+
+  file(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const selected = input.files?.[0] ?? null;
+    if (!selected) { this.avatar.set(null); return; }
+    const allowedTypes = new Set(['image/jpeg', 'image/png', 'image/webp']);
+    if (!allowedTypes.has(selected.type)) {
+      this.avatar.set(null);
+      input.value = '';
+      this.notices.show(this.text('اختر صورة بصيغة JPG أو PNG أو WebP.', 'Choose a JPG, PNG, or WebP image.'), 'error');
       return;
     }
-    const data = new FormData();
-    Object.entries(this.form.getRawValue()).forEach(([k, v]) => data.append(k, v.trim()));
-    if (this.avatar()) data.append('avatar', this.avatar()!);
+    if (selected.size > 2 * 1024 * 1024) {
+      this.avatar.set(null);
+      input.value = '';
+      this.notices.show(this.text('حجم الصورة يجب ألا يتجاوز 2 ميجابايت.', 'The image must not exceed 2 MB.'), 'error');
+      return;
+    }
+    this.avatar.set(selected);
+  }
+
+  submit(): void {
+    if (this.form.invalid || this.submitting()) { this.form.markAllAsTouched(); return; }
     this.submitting.set(true);
-    this.auth
-      .checkEmail(this.form.controls.email.value.trim())
-      .pipe(
-        switchMap((exists) => {
-          if (exists) {
-            this.form.controls.email.setErrors({ emailExists: true });
-            this.form.controls.email.markAsTouched();
-            this.notices.show(this.i18n.translate('emailExists'), 'error');
-            return EMPTY;
-          }
-          return this.auth.register(data);
-        }),
-        finalize(() => this.submitting.set(false)),
-      )
+    this.auth.register({ ...this.form.getRawValue(), avatar: this.avatar() })
+      .pipe(finalize(() => this.submitting.set(false)))
       .subscribe({
         next: () => {
-          this.notices.show(this.i18n.translate('accountCreated'), 'success');
+          this.notices.show(
+            this.text('تم إنشاء حسابك. راجع بريدك لتأكيده.', 'Your account was created. Check your email to confirm it.'),
+            'success',
+          );
           void this.router.navigateByUrl('/');
         },
       });

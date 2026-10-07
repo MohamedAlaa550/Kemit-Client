@@ -1,156 +1,71 @@
 <section class="form-shell">
-  <p class="eyebrow">{{'joinKemit'|t}}</p>
-  <h1>{{'registerTitle'|t}}</h1>
+  <p class="eyebrow">{{ text('انضم إلى كيميت','Join Kemet') }}</p>
+  <h1>{{ text('إنشاء حساب جديد','Create a new account') }}</h1>
+  <p class="muted">{{ text('سجّل بسرعة باستخدام Google أو أدخل بياناتك الأساسية. سنطلب تأكيد واتساب فقط عند نشر إعلان.','Continue quickly with Google or enter your basic details. WhatsApp verification is only required when you publish a listing.') }}</p>
+
+  <app-google-sign-in mode="signup" />
+
   <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem">
+    <div class="two-columns">
       <div class="form-group">
-        <label for="first">{{'firstName'|t}}</label
-        ><input
-          class="form-control"
-          id="first"
-          formControlName="firstName"
-          autocomplete="given-name"
-        />
-        @if (form.controls.firstName.touched && form.controls.firstName.invalid) {
-          <p class="field-error">{{'requiredFirstName'|t}}</p>
-        }
+        <label for="first-name">{{ text('الاسم الأول','First name') }}</label>
+        <input class="form-control" id="first-name" autocomplete="given-name" formControlName="firstName">
+        @if(form.controls.firstName.touched && form.controls.firstName.invalid){<p class="field-error">{{ text('الاسم الأول مطلوب.','First name is required.') }}</p>}
       </div>
       <div class="form-group">
-        <label for="last">{{'lastName'|t}}</label
-        ><input
-          class="form-control"
-          id="last"
-          formControlName="lastName"
-          autocomplete="family-name"
-        />
-        @if (form.controls.lastName.touched && form.controls.lastName.invalid) {
-          <p class="field-error">{{'requiredLastName'|t}}</p>
-        }
+        <label for="last-name">{{ text('الاسم الأخير','Last name') }}</label>
+        <input class="form-control" id="last-name" autocomplete="family-name" formControlName="lastName">
+        @if(form.controls.lastName.touched && form.controls.lastName.invalid){<p class="field-error">{{ text('الاسم الأخير مطلوب.','Last name is required.') }}</p>}
       </div>
     </div>
     <div class="form-group">
-      <label for="username">{{'username'|t}}</label
-      ><input
-        class="form-control"
-        id="username"
-        formControlName="userName"
-        autocomplete="username"
-      />
-      @if (form.controls.userName.touched && form.controls.userName.invalid) {
-        <p class="field-error">{{'usernameError'|t}}</p>
-      }
+      <label for="register-email">{{ text('البريد الإلكتروني','Email address') }}</label>
+      <input class="form-control" id="register-email" type="email" autocomplete="email" formControlName="email">
+      @if(form.controls.email.touched && form.controls.email.invalid){<p class="field-error">{{ text('أدخل بريدًا إلكترونيًا صحيحًا.','Enter a valid email address.') }}</p>}
     </div>
     <div class="form-group">
-      <label for="reg-email">{{'email'|t}}</label
-      ><input
-        class="form-control"
-        id="reg-email"
-        type="email"
-        formControlName="email"
-        autocomplete="email"
-      />
-      @if (form.controls.email.touched && form.controls.email.hasError('emailExists')) {
-        <p class="field-error">{{'emailExists'|t}}</p>
-      } @else if (form.controls.email.touched && form.controls.email.invalid) {
-        <p class="field-error">{{'emailInvalid'|t}}</p>
-      }
+      <label for="register-phone">{{ text('رقم الهاتف','Phone number') }}</label>
+      <input class="form-control" id="register-phone" type="tel" inputmode="numeric" autocomplete="tel" formControlName="phoneNumber" placeholder="01xxxxxxxxx">
+      <p class="muted">{{ text('سيتم تأكيد الرقم برسالة واتساب عند نشر أول إعلان.','The number will be verified by WhatsApp when you publish your first listing.') }}</p>
+      @if(form.controls.phoneNumber.touched && form.controls.phoneNumber.invalid){<p class="field-error">{{ text('أدخل رقم موبايل مصريًا صحيحًا.','Enter a valid Egyptian mobile number.') }}</p>}
     </div>
     <div class="form-group">
-      <label for="phone">{{'phone'|t}}</label
-      ><input
-        class="form-control"
-        id="phone"
-        type="tel"
-        formControlName="phoneNumber"
-        placeholder="01xxxxxxxxx"
-      />
-      @if (form.controls.phoneNumber.touched && form.controls.phoneNumber.invalid) {
-        <p class="field-error">{{'phoneError'|t}}</p>
-      }
-    </div>
-    <div class="form-group">
-      <label for="reg-pass">{{'password'|t}}</label>
-      <div class="password-field">
-        <input
-          class="form-control"
-          id="reg-pass"
-          [type]="showPassword() ? 'text' : 'password'"
-          formControlName="password"
-          autocomplete="new-password"
-        /><button
-          class="password-toggle"
-          type="button"
-          (click)="togglePassword()"
-          [attr.aria-label]="(showPassword() ? 'hidePassword' : 'showPassword') | t"
-          [attr.aria-pressed]="showPassword()"
-        >
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            @if (showPassword()) {
-              <path
-                d="M3 3l18 18M10.6 10.7a2 2 0 0 0 2.7 2.7M9.9 4.2A10.8 10.8 0 0 1 12 4c5.5 0 9 5.5 9 5.5a16 16 0 0 1-2.1 2.6M6.2 6.2C4.1 7.6 3 9.5 3 9.5S6.5 15 12 15c1 0 2-.2 2.8-.5"
-              />
-            } @else {
-              <path d="M3 12s3.5-5.5 9-5.5 9 5.5 9 5.5-3.5 5.5-9 5.5S3 12 3 12Z" />
-              <circle cx="12" cy="12" r="2.5" />
-            }
-          </svg>
+      <label for="new-password">{{ text('كلمة المرور','Password') }}</label>
+      <div class="password-control">
+        <input class="form-control" id="new-password" [type]="passwordVisible() ? 'text' : 'password'" autocomplete="new-password" formControlName="password">
+        <button type="button" class="password-toggle" (click)="passwordVisible.update(value => !value)" [attr.aria-label]="i18n.translate(passwordVisible() ? 'hidePassword' : 'showPassword')" [attr.title]="i18n.translate(passwordVisible() ? 'hidePassword' : 'showPassword')">
+          @if (passwordVisible()) {
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3l18 18M10.6 10.7a2 2 0 002.7 2.7M9.9 4.2A10.8 10.8 0 0112 4c5.5 0 9 5 9 5a16 16 0 01-2.1 2.7M6.6 6.6C4.3 8.1 3 10 3 10s3.5 5 9 5c1.2 0 2.3-.2 3.3-.6"/></svg>
+          } @else {
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12s3.5-5 9-5 9 5 9 5-3.5 5-9 5-9-5-9-5z"/><circle cx="12" cy="12" r="2.5"/></svg>
+          }
         </button>
       </div>
-      <p class="muted" style="font-size: 0.78rem">{{'passwordHint'|t}}</p>
-      @if (form.controls.password.touched && form.controls.password.invalid) {
-        <p class="field-error">{{'passwordRulesError'|t}}</p>
-      }
+      <p class="muted password-hint">{{ text('8 أحرف على الأقل، تشمل حرفًا كبيرًا وصغيرًا ورقمًا ورمزًا خاصًا.','At least 8 characters with uppercase, lowercase, a number, and a special symbol.') }}</p>
+      @if(form.controls.password.touched && form.controls.password.invalid){<p class="field-error">{{ text('كلمة المرور لا تحقق المتطلبات.','Password does not meet the requirements.') }}</p>}
     </div>
     <div class="form-group">
-      <label for="confirm">{{'confirmPassword'|t}}</label>
-      <div class="password-field">
-        <input
-          class="form-control"
-          id="confirm"
-          [type]="showConfirmPassword() ? 'text' : 'password'"
-          formControlName="confirmPassword"
-          autocomplete="new-password"
-        /><button
-          class="password-toggle"
-          type="button"
-          (click)="toggleConfirmPassword()"
-          [attr.aria-label]="(showConfirmPassword() ? 'hidePassword' : 'showPassword') | t"
-          [attr.aria-pressed]="showConfirmPassword()"
-        >
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            @if (showConfirmPassword()) {
-              <path
-                d="M3 3l18 18M10.6 10.7a2 2 0 0 0 2.7 2.7M9.9 4.2A10.8 10.8 0 0 1 12 4c5.5 0 9 5.5 9 5.5a16 16 0 0 1-2.1 2.6M6.2 6.2C4.1 7.6 3 9.5 3 9.5S6.5 15 12 15c1 0 2-.2 2.8-.5"
-              />
-            } @else {
-              <path d="M3 12s3.5-5.5 9-5.5 9 5.5 9 5.5-3.5 5.5-9 5.5S3 12 3 12Z" />
-              <circle cx="12" cy="12" r="2.5" />
-            }
-          </svg>
+      <label for="confirm-password">{{ text('تأكيد كلمة المرور','Confirm password') }}</label>
+      <div class="password-control">
+        <input class="form-control" id="confirm-password" [type]="confirmPasswordVisible() ? 'text' : 'password'" autocomplete="new-password" formControlName="confirmPassword">
+        <button type="button" class="password-toggle" (click)="confirmPasswordVisible.update(value => !value)" [attr.aria-label]="i18n.translate(confirmPasswordVisible() ? 'hidePassword' : 'showPassword')" [attr.title]="i18n.translate(confirmPasswordVisible() ? 'hidePassword' : 'showPassword')">
+          @if (confirmPasswordVisible()) {
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3l18 18M10.6 10.7a2 2 0 002.7 2.7M9.9 4.2A10.8 10.8 0 0112 4c5.5 0 9 5 9 5a16 16 0 01-2.1 2.7M6.6 6.6C4.3 8.1 3 10 3 10s3.5 5 9 5c1.2 0 2.3-.2 3.3-.6"/></svg>
+          } @else {
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12s3.5-5 9-5 9 5 9 5-3.5 5-9 5-9-5-9-5z"/><circle cx="12" cy="12" r="2.5"/></svg>
+          }
         </button>
       </div>
-      @if (
-        form.controls.confirmPassword.touched && form.controls.confirmPassword.hasError('required')
-      ) {
-        <p class="field-error">{{'confirmRequired'|t}}</p>
-      } @else if (form.controls.confirmPassword.touched && form.hasError('fieldsMismatch')) {
-        <p class="field-error">{{'passwordsMismatch'|t}}</p>
-      }
+      @if(form.controls.confirmPassword.touched && form.hasError('fieldsMismatch')){<p class="field-error">{{ text('كلمتا المرور غير متطابقتين.','Passwords do not match.') }}</p>}
     </div>
     <div class="form-group">
-      <label for="avatar">{{'avatarOptional'|t}}</label
-      ><input
-        class="form-control"
-        id="avatar"
-        type="file"
-        accept="image/png,image/jpeg,image/webp"
-        (change)="file($event)"
-      />
+      <label for="avatar">{{ text('الصورة الشخصية (اختيارية)','Profile image (optional)') }}</label>
+      <input class="form-control" id="avatar" type="file" accept="image/png,image/jpeg,image/webp" (change)="file($event)">
+      <p class="muted">{{ text('JPG أو PNG أو WebP، بحد أقصى 2MB.','JPG, PNG, or WebP, up to 2 MB.') }}</p>
     </div>
     <button class="btn btn-gold form-submit" type="submit" [disabled]="submitting()">
-      {{(submitting()?'creatingAccount':'registerTitle')|t}}
+      {{ submitting() ? text('جارٍ إنشاء الحساب...','Creating account...') : text('إنشاء الحساب','Create account') }}
     </button>
   </form>
-  <app-google-sign-in mode="signup" />
-  <p class="form-footer">{{'alreadyAccount'|t}} <a routerLink="/auth/login">{{'signInTitle'|t}}</a></p>
+  <p class="form-footer">{{ text('لديك حساب بالفعل؟','Already have an account?') }} <a routerLink="/auth/login">{{ text('تسجيل الدخول','Sign in') }}</a></p>
 </section>

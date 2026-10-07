@@ -1,5 +1,95 @@
-<section class="hero"><div class="glow"></div><div class="container hero-grid"><div><p class="eyebrow">{{'trustedMarket'|t}}</p><h1>{{'heroTitle'|t}}</h1><p class="lead">{{'heroLead'|t}}</p><div class="actions"><a class="btn btn-gold" routerLink="/properties">{{'browseListings'|t}}</a><a class="btn btn-ghost" routerLink="/properties/create">{{'addListing'|t}}</a></div></div><div class="visual" aria-hidden="true"><img src="assets/brand/kemit-logo.jpeg" width="620" height="620" alt=""><div class="float"><span>{{'latestListings'|t}}</span><b>{{'latestLead'|t}}</b></div></div></div></section>
-<section class="section panel"><div class="container"><div class="section-heading"><div><p class="eyebrow">{{'latestLead'|t}}</p><h2>{{'latestListings'|t}}</h2></div><a class="btn btn-ghost btn-sm" routerLink="/properties">{{'viewAll'|t}}</a></div>@if(ads().length){<div class="grid-cards">@for(item of ads();track item.id){<app-listing-card [item]="item" kind="property"/>}</div>}@else{<div class="empty-state">{{'noListings'|t}}</div>}</div></section>
-<section class="section"><div class="container"><div class="section-heading"><div><p class="eyebrow">{{'selectedProjects'|t}}</p><h2>{{'reliableProjects'|t}}</h2></div><a class="btn btn-ghost btn-sm" routerLink="/projects">{{'projects'|t}}</a></div>@if(projects().length){<div class="grid-cards">@for(item of projects();track item.id){<app-listing-card [item]="item"/>}</div>}@else{<div class="empty-state">{{'noProjects'|t}}</div>}</div></section>
-<section class="section panel"><div class="container"><div class="section-heading"><div><p class="eyebrow">{{'partners'|t}}</p><h2>{{'trustedDevelopers'|t}}</h2></div><a class="btn btn-ghost btn-sm" routerLink="/developers">{{'developers'|t}}</a></div><div class="developers">@for(dev of developers();track dev.id){<article><span>{{dev.name.charAt(0)}}</span><div><h3>{{dev.name}}</h3><p>{{dev.projectsCount}} {{'projects'|t}}</p></div></article>}</div></div></section>
+@if (slides().length) {
+<section class="hero-slider" aria-roledescription="carousel" [attr.aria-label]="i18n.locale()==='ar'?'صور كيميت الرئيسية':'Kemet featured banners'">
+  <div class="slides">
+    @for (slide of slides(); track slide.src; let index = $index) {
+      <figure class="slide" [class.active]="activeSlide()===index" [attr.aria-hidden]="activeSlide()!==index">
+        <img [src]="slide.src" width="1778" height="600" [alt]="i18n.locale()==='ar'?slide.altAr:slide.altEn" [attr.fetchpriority]="index===0?'high':null" (error)="onSlideImageError(index)">
+      </figure>
+    }
+  </div>
+  <button class="slider-arrow previous" type="button" (click)="previousSlide()" [attr.aria-label]="i18n.locale()==='ar'?'الصورة السابقة':'Previous slide'">‹</button>
+  <button class="slider-arrow next" type="button" (click)="nextSlide()" [attr.aria-label]="i18n.locale()==='ar'?'الصورة التالية':'Next slide'">›</button>
+  <div class="slider-dots" role="tablist" [attr.aria-label]="i18n.locale()==='ar'?'اختيار الصورة':'Choose slide'">
+    @for (slide of slides(); track slide.src; let index = $index) {
+      <button type="button" role="tab" [class.active]="activeSlide()===index" [attr.aria-selected]="activeSlide()===index" (click)="goToSlide(index)"><span class="sr-only">{{index+1}}</span></button>
+    }
+  </div>
+</section>
+}
+<section class="home-search" [attr.aria-label]="i18n.locale()==='ar'?'البحث في الموقع':'Site search'">
+  <div class="container">
+    <div class="search-heading">
+      <span>{{i18n.locale()==='ar'?'كل عقارات كيميت في مكان واحد':'All Kemet properties in one place'}}</span>
+      <h1>{{i18n.locale()==='ar'?'بتدور على إيه؟':'What are you looking for?'}}</h1>
+      <p>{{i18n.locale()==='ar'?'ابحث مرة واحدة في الإعلانات والمشاريع والوحدات':'Search listings, projects, and units at once'}}</p>
+    </div>
+    <app-global-search />
+  </div>
+</section>
+<section class="developers-showcase" [attr.aria-label]="i18n.locale()==='ar'?'المطورون العقاريون':'Real estate developers'">
+  <div class="container">
+    <div class="developers-frame">
+      <div class="developers-header">
+        <div><h2>{{i18n.locale()==='ar'?'أبرز المطورين':'Featured developers'}}</h2><p class="developers-lead">{{i18n.locale()==='ar'?'مشروعات مميزة من أفضل المطورين العقاريين':'Distinctive projects from leading developers'}}</p></div>
+      </div>
+      @if(developersLoading()){
+        <div class="developer-carousel"><div class="developer-track loading" aria-hidden="true">@for(item of [1,2,3,4];track item){<div class="developer-skeleton"><i></i><span></span></div>}</div></div>
+      }@else if(developers().length){
+        <div class="developer-carousel">
+          @if(developers().length > 1){<button class="developer-nav previous" type="button" (click)="scrollDevelopers(-1)" [attr.aria-label]="i18n.locale()==='ar'?'المطورون السابقون':'Previous developers'">‹</button>}
+          <div #developersTrack class="developer-track" (scroll)="syncActiveDeveloper()">
+            @for(developer of developers();track developer.id;let index=$index){
+              <a class="developer-slide" [class.featured]="activeDeveloperIndex()===index" [routerLink]="['/developers',developer.id]" [attr.aria-label]="(i18n.locale()==='ar'?'عرض المطور ومشروعاته: ':'View developer and projects: ')+developer.name">
+                <span class="developer-logo"><img [src]="developerLogo(developer)" width="116" height="116" [alt]="developer.name" loading="lazy"></span>
+                <span class="developer-info"><strong>{{developer.name}}</strong><small>{{developer.projectsCount}} {{i18n.locale()==='ar'?'مشروع':'projects'}}</small></span>
+              </a>
+            }
+          </div>
+          @if(developers().length > 1){<button class="developer-nav next" type="button" (click)="scrollDevelopers(1)" [attr.aria-label]="i18n.locale()==='ar'?'المطورون التاليون':'Next developers'">›</button>}
+        </div>
+        <div class="developer-progress" aria-hidden="true">@for(indicator of [0,1,2,3];track indicator){<i [class.active]="indicator===activeDeveloperIndex()%4"></i>}</div>
+      }@else{<div class="developers-empty">{{i18n.locale()==='ar'?'لا يوجد مطورون متاحون حاليًا':'No developers are currently available'}}</div>}
+    </div>
+  </div>
+</section>
+<section class="section panel">
+  <div class="container">
+    <div class="section-heading">
+      <div><p class="eyebrow">{{'latestLead'|t}}</p><h2>{{'latestListings'|t}}</h2></div>
+    </div>
+    @if(advertisementsLoading()){
+      <div class="advertisements-slider" aria-hidden="true">
+        <div class="advertisements-track skeleton-track">@for(index of [1,2,3];track index){<div class="listing-skeleton"><span></span><i></i><i></i><i></i></div>}</div>
+      </div>
+    }@else if(ads().length){
+      <div class="advertisements-slider" aria-roledescription="carousel" [attr.aria-label]="i18n.locale()==='ar'?'أحدث الإعلانات':'Latest listings'">
+        @if(ads().length > 1){<button class="advertisement-nav previous" type="button" (click)="scrollAdvertisements(-1)" [disabled]="activeAdvertisementIndex()===0" [attr.aria-label]="i18n.locale()==='ar'?'الإعلان السابق':'Previous listing'">‹</button>}
+        <div #advertisementsTrack class="advertisements-track results-grid" (scroll)="syncActiveAdvertisement()">
+          @for(item of ads();track item.id){<app-listing-card [item]="item" kind="property"/>}
+        </div>
+        @if(ads().length > 1){<button class="advertisement-nav next" type="button" (click)="scrollAdvertisements(1)" [disabled]="activeAdvertisementIndex()===ads().length-1" [attr.aria-label]="i18n.locale()==='ar'?'الإعلان التالي':'Next listing'">›</button>}
+      </div>
+      <div class="advertisement-dots" aria-hidden="true">@for(item of ads();track item.id;let index=$index){<i [class.active]="index===activeAdvertisementIndex()"></i>}</div>
+    }@else{<div class="empty-state">{{'noMatchingResults'|t}}</div>}
+    <div class="all-advertisements-action"><a class="btn btn-gold" routerLink="/properties">{{'viewAll'|t}}</a></div>
+  </div>
+</section>
+<section class="section projects-section">
+  <div class="container">
+    <div class="section-heading"><div><p class="eyebrow">{{'selectedProjects'|t}}</p><h2>{{'reliableProjects'|t}}</h2></div></div>
+    @if(projectsLoading()){
+      <div class="projects-slider" aria-hidden="true"><div class="projects-track skeleton-track">@for(index of [1,2,3];track index){<div class="listing-skeleton"><span></span><i></i><i></i><i></i></div>}</div></div>
+    }@else if(projects().length){
+      <div class="projects-slider" aria-roledescription="carousel" [attr.aria-label]="i18n.locale()==='ar'?'المشروعات المختارة':'Selected projects'">
+        @if(projects().length > 1){<button class="project-nav previous" type="button" (click)="scrollProjects(-1)" [disabled]="activeProjectIndex()===0" [attr.aria-label]="i18n.locale()==='ar'?'المشروع السابق':'Previous project'">‹</button>}
+        <div #projectsTrack class="projects-track results-grid" (scroll)="syncActiveProject()">
+          @for(item of projects();track item.id){<app-listing-card [item]="item"/>}
+        </div>
+        @if(projects().length > 1){<button class="project-nav next" type="button" (click)="scrollProjects(1)" [disabled]="activeProjectIndex()===projects().length-1" [attr.aria-label]="i18n.locale()==='ar'?'المشروع التالي':'Next project'">›</button>}
+      </div>
+      <div class="project-dots" aria-hidden="true">@for(item of projects();track item.id;let index=$index){<i [class.active]="index===activeProjectIndex()"></i>}</div>
+    }@else{<div class="empty-state">{{'noProjects'|t}}</div>}
+    <div class="all-projects-action"><a class="btn btn-gold" routerLink="/projects">{{'viewAllProjects'|t}}</a></div>
+  </div>
+</section>
 <section class="section"><div class="container cta"><p class="eyebrow">{{'createFree'|t}}</p><h2>{{'ctaTitle'|t}}</h2><p>{{'ctaLead'|t}}</p><a class="btn btn-gold" routerLink="/properties/create">{{'addListing'|t}}</a></div></section>

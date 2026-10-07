@@ -1,0 +1,30 @@
+<section class="verification-card">
+  <div class="verification-icon">✓</div>
+  <p class="eyebrow">{{ text('خطوة واحدة قبل النشر','One step before publishing') }}</p>
+  <h2>{{ text('أكد رقم واتساب','Verify your WhatsApp number') }}</h2>
+  <p class="lead">{{ text('نطلب التأكيد مرة واحدة فقط لحماية المعلنين والعملاء من الحسابات الوهمية.','We ask only once to protect advertisers and customers from fake accounts.') }}</p>
+
+  @if (!codeRequested()) {
+    <form [formGroup]="phoneForm" (ngSubmit)="requestCode()">
+      <div class="form-group">
+        <label for="verification-phone">{{ text('رقم واتساب المصري','Egyptian WhatsApp number') }}</label>
+        <div class="phone-field"><span>+20</span><input class="form-control" id="verification-phone" type="tel" inputmode="numeric" autocomplete="tel" formControlName="phoneNumber" placeholder="01xxxxxxxxx"></div>
+        @if(phoneForm.controls.phoneNumber.touched && phoneForm.controls.phoneNumber.invalid){<p class="field-error">{{ text('أدخل رقم موبايل مصريًا صحيحًا.','Enter a valid Egyptian mobile number.') }}</p>}
+      </div>
+      <button class="btn btn-gold" type="submit" [disabled]="submitting()">{{ submitting() ? text('جارٍ الإرسال...','Sending...') : text('إرسال رمز التحقق','Send verification code') }}</button>
+    </form>
+  } @else {
+    <p class="sent-to">{{ text('أرسلنا رمزًا من 6 أرقام إلى','We sent a 6-digit code to') }} <bdi>{{ phoneForm.controls.phoneNumber.value }}</bdi></p>
+    <form [formGroup]="otpForm" (ngSubmit)="verifyCode()">
+      <div class="form-group">
+        <label for="verification-code">{{ text('رمز التحقق','Verification code') }}</label>
+        <input class="form-control otp" id="verification-code" inputmode="numeric" maxlength="6" autocomplete="one-time-code" formControlName="code">
+      </div>
+      <button class="btn btn-gold" type="submit" [disabled]="submitting()">{{ submitting() ? text('جارٍ التحقق...','Verifying...') : text('تأكيد ومتابعة','Verify and continue') }}</button>
+    </form>
+    <div class="verification-actions">
+      <button type="button" (click)="requestCode()" [disabled]="resendIn()>0 || submitting()">{{ resendIn() ? text('إعادة الإرسال بعد ','Resend in ') + resendIn() : text('إعادة إرسال الرمز','Resend code') }}</button>
+      <button type="button" (click)="changeNumber()">{{ text('تغيير الرقم','Change number') }}</button>
+    </div>
+  }
+</section>

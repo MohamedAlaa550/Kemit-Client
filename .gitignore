@@ -13,6 +13,7 @@ yarn-error.log
 
 # IDEs and editors
 .idea/
+.vs/
 .project
 .classpath
 .c9/
@@ -31,6 +32,8 @@ yarn-error.log
 
 # Miscellaneous
 /.angular/cache
+*.log
+*.pid
 .sass-cache/
 /connect.lock
 /coverage

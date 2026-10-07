@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { NotificationService } from '../../../Core/Services/notification.service';
+import { TranslationService } from '../../../Core/I18n/translation.service';
 
 @Component({
   selector: 'app-toast',
@@ -11,7 +12,7 @@ import { NotificationService } from '../../../Core/Services/notification.service
             {{ notice.type === 'success' ? '✓' : notice.type === 'error' ? '!' : 'i' }}
           </span>
           <span class="toast-message">{{ notice.message }}</span>
-          <button (click)="service.remove(notice.id)" aria-label="إغلاق">×</button>
+          <button (click)="service.remove(notice.id)" [attr.aria-label]="i18n.locale() === 'ar' ? 'إغلاق' : 'Close'">×</button>
         </div>
       }
     </div>
@@ -20,4 +21,5 @@ import { NotificationService } from '../../../Core/Services/notification.service
 })
 export class ToastComponent {
   readonly service = inject(NotificationService);
+  readonly i18n = inject(TranslationService);
 }

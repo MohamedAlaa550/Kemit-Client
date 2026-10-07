@@ -3,3 +3,4 @@ Allow: /
 Disallow: /profile
 Disallow: /favorites
 Disallow: /auth/reset-password
+Sitemap: https://kemet-masr.com/sitemap.xml

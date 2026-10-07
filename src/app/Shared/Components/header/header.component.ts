@@ -36,6 +36,7 @@ export class HeaderComponent {
     });
   }
   @HostListener('document:keydown.escape') onEscape() {
+    this.close();
     this.cancelLogout();
   }
 }
