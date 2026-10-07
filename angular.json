@@ -32,7 +32,11 @@
             "server": "src/main.server.ts",
             "outputMode": "server",
             "security": {
-              "allowedHosts": []
+              "allowedHosts": [
+                "kemet-masr.com",
+                "www.kemet-masr.com",
+                "localhost"
+              ]
             },
             "allowedCommonJsDependencies": ["leaflet"],
             "ssr": {
@@ -55,8 +59,8 @@
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "4kB",
-                  "maximumError": "8kB"
+                  "maximumWarning": "8kB",
+                  "maximumError": "12kB"
                 }
               ],
               "outputHashing": "all"
@@ -71,6 +75,11 @@
         },
         "serve": {
           "builder": "@angular/build:dev-server",
+          "options": {
+            "headers": {
+              "Cross-Origin-Opener-Policy": "same-origin-allow-popups"
+            }
+          },
           "configurations": {
             "production": {
               "buildTarget": "Kemit-Client:build:production"

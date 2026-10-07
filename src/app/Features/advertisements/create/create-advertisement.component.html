@@ -2,11 +2,52 @@
   <div class="container">
     <a class="back" routerLink="/properties">← {{ 'backListings' | t }}</a>
     <div class="heading">
-      <p class="eyebrow">{{ 'addListing' | t }}</p>
-      <h1>{{ 'createTitle' | t }}</h1>
-      <p>{{ 'createLead' | t }}</p>
+      <p class="eyebrow">{{ editMode ? (i18n.locale()==='ar'?'تعديل الإعلان':'Edit listing') : ('addListing' | t) }}</p>
+      <h1>{{ editMode ? (i18n.locale()==='ar'?'تحديث بيانات إعلانك':'Update your listing') : ('createTitle' | t) }}</h1>
+      <p>{{ editMode ? (i18n.locale()==='ar'?'بعد الحفظ سيعود الإعلان إلى قيد المراجعة قبل نشره مرة أخرى.':'After saving, the listing will return to pending review before being published again.') : ('createLead' | t) }}</p>
     </div>
-    <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    @if (checkingPhone()) {
+      <p class="credit-loading">{{ i18n.locale()==='ar' ? 'جارٍ التحقق من حسابك...' : 'Checking your account...' }}</p>
+    } @else if (!phoneVerified()) {
+      <app-phone-verification (verified)="phoneVerificationCompleted()" />
+    }
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate [hidden]="!phoneVerified()">
+      @if (!editMode) {
+        <section class="publishing-plan">
+          <div class="plan-heading">
+            <div><small>KEMET ADS</small><h2>{{ i18n.locale()==='ar'?'اختر رصيد نشر الإعلان':'Choose publishing credit' }}</h2></div>
+            <a routerLink="/packages">{{ i18n.locale()==='ar'?'عرض الباقات':'View plans' }}</a>
+          </div>
+          @if (advertisingAccount(); as account) {
+            @if (canPublish()) {
+              <div class="credit-options">
+                @if (account.isUnlimitedPublishing) {
+                  <label class="selected">
+                    <input type="radio" name="publishingCredit" checked (change)="selectFreePublishing()">
+                    <span><strong>{{ i18n.locale()==='ar'?'نشر غير محدود':'Unlimited publishing' }}</strong><small>{{ i18n.locale()==='ar'?'حساب إداري بدون قيود على عدد الإعلانات':'Admin account with no listing limit' }}</small></span>
+                  </label>
+                }
+                @if (account.freeAdvertisementsRemaining > 0) {
+                  <label [class.selected]="form.controls.advertisingPurchaseId.value === null">
+                    <input type="radio" name="publishingCredit" [checked]="form.controls.advertisingPurchaseId.value === null" (change)="selectFreePublishing()">
+                    <span><strong>{{ i18n.locale()==='ar'?'إعلان مجاني':'Free listing' }}</strong><small>{{ account.freeAdvertisementsRemaining }} {{ i18n.locale()==='ar'?'متبقي':'remaining' }}</small></span>
+                  </label>
+                }
+                @for (purchase of account.activePurchases; track purchase.id) {
+                  <label [class.selected]="form.controls.advertisingPurchaseId.value === purchase.id">
+                    <input type="radio" name="publishingCredit" [value]="purchase.id" [checked]="form.controls.advertisingPurchaseId.value === purchase.id" (change)="form.controls.advertisingPurchaseId.setValue(purchase.id)">
+                    <span><strong>{{ purchase.promotionLevel === 3 ? 'VIP' : (i18n.locale()==='ar'?'إعلان مميز':'Featured listing') }}</strong><small>{{ purchase.remainingAdvertisements }} {{ i18n.locale()==='ar'?'متبقي حتى':'remaining until' }} {{ purchase.expiresAt | date:'d MMM y' }}</small></span>
+                  </label>
+                }
+              </div>
+            } @else {
+              <div class="no-credit"><strong>{{ i18n.locale()==='ar'?'استخدمت الإعلانين المجانيين':'Your two free listings have been used' }}</strong><p>{{ i18n.locale()==='ar'?'اشترِ إعلانًا مميزًا أو اختر إحدى الباقات للمتابعة.':'Buy a featured listing or choose a package to continue.' }}</p><a class="btn btn-gold" routerLink="/packages">{{ i18n.locale()==='ar'?'اختيار باقة':'Choose a plan' }}</a></div>
+            }
+          } @else {
+            <p class="credit-loading">{{ i18n.locale()==='ar'?'جارٍ تحميل رصيد الإعلانات...':'Loading listing credit...' }}</p>
+          }
+        </section>
+      }
       <fieldset>
         <legend>{{ 'listingBasics' | t }}</legend>
         <div class="form-grid">
@@ -37,17 +78,62 @@
               rows="5"
             ></textarea>
           </div>
+          @if (showsSalePaymentOptions()) {
+            <fieldset class="form-group radio-field">
+              <legend>{{ 'paymentMethod' | t }}</legend>
+              <div class="radio-options">
+                <label><input type="radio" formControlName="paymentMethod" value="Cash" /> {{ 'cash' | t }}</label>
+                <label><input type="radio" formControlName="paymentMethod" value="Installment" /> {{ 'installment' | t }}</label>
+              </div>
+            </fieldset>
+          }
           <div class="form-group">
-            <label for="price">{{ 'price' | t }}</label
+            <label for="price">{{ (showsInstallmentFields() ? 'totalPrice' : 'price') | t }}</label
             ><input
               id="price"
               class="form-control"
-              type="number"
-              min="1"
+              type="text"
               inputmode="decimal"
+              appThousandsSeparator
               formControlName="price"
             />
           </div>
+          @if (showsInstallmentFields()) {
+            <div class="form-group">
+              <label for="downPayment">{{ 'downPayment' | t }}</label>
+              <input id="downPayment" class="form-control" type="text" inputmode="decimal" appThousandsSeparator formControlName="downPayment" />
+              @if (form.controls.downPayment.touched && downPaymentInvalid()) {
+                <p class="field-error">{{ 'downPaymentError' | t }}</p>
+              }
+            </div>
+            <div class="form-group">
+              <label for="installmentYears">{{ 'installmentYears' | t }}</label>
+              <input id="installmentYears" class="form-control" type="number" min="1" inputmode="numeric" formControlName="installmentYears" />
+            </div>
+            <div class="form-group">
+              <label for="monthlyInstallment">{{ 'monthlyInstallment' | t }}</label>
+              <input id="monthlyInstallment" class="form-control" type="text" inputmode="decimal" appThousandsSeparator formControlName="monthlyInstallment" />
+              @if (form.controls.monthlyInstallment.touched && monthlyInstallmentInvalid()) {
+                <p class="field-error">{{ 'monthlyInstallmentError' | t }}</p>
+              }
+            </div>
+          }
+          @if (showsResidentialRentalOptions()) {
+            <fieldset class="form-group radio-field">
+              <legend>{{ 'rentalPeriod' | t }}</legend>
+              <div class="radio-options">
+                <label><input type="radio" formControlName="rentalPeriod" value="Monthly" /> {{ 'monthly' | t }}</label>
+                <label><input type="radio" formControlName="rentalPeriod" value="Daily" /> {{ 'daily' | t }}</label>
+              </div>
+            </fieldset>
+            <fieldset class="form-group radio-field">
+              <legend>{{ 'furnishingStatus' | t }}</legend>
+              <div class="radio-options">
+                <label><input type="radio" formControlName="furnishingStatus" value="Furnished" /> {{ 'furnished' | t }}</label>
+                <label><input type="radio" formControlName="furnishingStatus" value="Unfurnished" /> {{ 'unfurnished' | t }}</label>
+              </div>
+            </fieldset>
+          }
           <div class="form-group">
             <label for="phone">{{ 'phone' | t }}</label
             ><input
@@ -67,6 +153,18 @@
         <legend>{{ 'propertyDetails' | t }}</legend>
         <div class="form-grid">
           <div class="form-group">
+            <label for="activityType">{{ 'activityType' | t }}</label
+            ><select
+              id="activityType"
+              class="form-control"
+              formControlName="activityType"
+              (change)="activityTypeChanged()"
+            >
+              <option value="Residential">{{ 'activityResidential' | t }}</option>
+              <option value="Commercial">{{ 'activityCommercial' | t }}</option>
+            </select>
+          </div>
+          <div class="form-group">
             <label for="propertyType">{{ 'propertyType' | t }}</label
             ><select
               id="propertyType"
@@ -74,7 +172,7 @@
               formControlName="propertyType"
               (change)="propertyTypeChanged()"
             >
-              @for (item of propertyTypes; track item.value) {
+              @for (item of availablePropertyTypes(); track item.value) {
                 <option [value]="item.value">{{ item.labelKey | t }}</option>
               }
             </select>
@@ -83,8 +181,8 @@
             <label for="area">{{ 'area' | t }}</label
             ><input id="area" class="form-control" type="number" min="1" formControlName="area" />
           </div>
-          <div class="form-group">
-            <label for="bedrooms">{{ 'bedrooms' | t }}</label
+          @if (showsBedrooms()) {<div class="form-group">
+            <label for="bedrooms">{{ 'numberOfRooms' | t }}</label
             ><input
               id="bedrooms"
               class="form-control"
@@ -92,8 +190,8 @@
               min="0"
               formControlName="numberOfBedrooms"
             />
-          </div>
-          <div class="form-group">
+          </div>}
+          @if (showsBathrooms()) {<div class="form-group">
             <label for="bathrooms">{{ 'bathrooms' | t }}</label
             ><input
               id="bathrooms"
@@ -102,7 +200,7 @@
               min="1"
               formControlName="numberOfBathrooms"
             />
-          </div>
+          </div>}
           @if (showsNumberOfFloors()) {
             <div class="form-group">
               <label for="floors">{{ 'floors' | t }}</label
@@ -115,7 +213,7 @@
               />
             </div>
           }
-          <div class="form-group">
+          @if (showsFloorNumber()) {<div class="form-group">
             <label for="floor">{{ 'floorNumber' | t }}</label
             ><input
               id="floor"
@@ -124,7 +222,7 @@
               min="0"
               formControlName="floorNumber"
             />
-          </div>
+          </div>}
         </div>
       </fieldset>
       <fieldset>
@@ -140,7 +238,7 @@
             >
               <option [value]="0">{{ 'choose' | t }}</option>
               @for (item of governorates(); track item.id) {
-                <option [value]="item.id">{{ item.name }}</option>
+                <option [value]="item.id">{{ item.name | locationName }}</option>
               }
             </select>
           </div>
@@ -149,7 +247,7 @@
             ><select id="city" class="form-control" formControlName="citiesId" (change)="cityChanged()">
               <option [value]="0">{{ 'choose' | t }}</option>
               @for (item of cities(); track item.id) {
-                <option [value]="item.id">{{ item.name }}</option>
+                <option [value]="item.id">{{ item.name | locationName }}</option>
               }
             </select>
           </div>
@@ -169,13 +267,17 @@
       </fieldset>
       <fieldset>
         <legend>{{ 'photos' | t }}</legend>
+        @if (editMode && existingImages().length) {
+          <p class="existing-note">{{ i18n.locale()==='ar'?'الصور الحالية ستظل كما هي. ارفع 3 صور جديدة على الأقل فقط إذا أردت استبدالها.':'Current photos will be kept. Upload at least 3 new photos only if you want to replace them.' }}</p>
+          <div class="image-previews existing-images">@for (path of existingImages(); track path) {<figure><img [src]="existingImageUrl(path)" alt="" /></figure>}</div>
+        }
         <label class="upload" for="images"
           ><strong>{{ 'uploadPhotos' | t }}</strong
           ><span>{{ 'photoHint' | t }}</span
           ><input id="images" type="file" accept="image/*" multiple (change)="filesChanged($event)"
         /></label>
-        <p class="file-count" [class.invalid]="images().length < 3">
-          {{ images().length }} / 3 {{ 'minimum' | t }}
+        <p class="file-count" [class.invalid]="(!editMode && images().length < 3) || (editMode && images().length > 0 && images().length < 3)">
+          {{ images().length }} / 3 {{ editMode ? (i18n.locale()==='ar'?'صور جديدة كحد أدنى عند الاستبدال':'new photos minimum when replacing') : ('minimum' | t) }}
         </p>
         @if (previews().length) {
           <div class="image-previews">
@@ -193,15 +295,15 @@
           </div>
         }
       </fieldset>
-      @if (form.invalid || images().length < 3) {
+      @if (form.invalid || installmentValuesInvalid() || (!editMode && images().length < 3) || (editMode && images().length > 0 && images().length < 3)) {
         <p class="form-guidance">{{ 'completeRequired' | t }}</p>
       }
       <button
         class="btn btn-gold submit"
         type="submit"
-        [disabled]="form.invalid || images().length < 3 || submitting()"
+        [disabled]="form.invalid || installmentValuesInvalid() || (!editMode && images().length < 3) || (editMode && images().length > 0 && images().length < 3) || submitting() || loadingAdvertisement()"
       >
-        {{ (submitting() ? 'publishing' : 'publish') | t }}
+        {{ submitting() ? (i18n.locale()==='ar'?'جارٍ الحفظ...':'Saving...') : editMode ? (i18n.locale()==='ar'?'حفظ وإرسال للمراجعة':'Save and submit for review') : ('publish' | t) }}
       </button>
     </form>
   </div>

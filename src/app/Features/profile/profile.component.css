@@ -262,6 +262,7 @@ main {
   border-radius: 50%;
   color: var(--color-primary);
 }
+.ad-actions{display:flex;align-items:center;gap:.45rem}.manage-ad{padding:.42rem .65rem;border:1px solid var(--color-border);border-radius:.55rem;background:transparent;color:var(--gray-200);font:inherit;font-size:.72rem;font-weight:800;cursor:pointer}.edit-ad:hover{border-color:var(--color-primary);color:var(--color-primary)}.delete-ad{border-color:#733;color:#ef9a9a}.delete-ad:hover{background:#3a1717}.confirm-overlay{position:fixed;z-index:1000;inset:0;display:grid;place-items:center;padding:1rem;background:#000b;backdrop-filter:blur(7px)}.confirm-dialog{width:min(440px,100%);padding:1.7rem;border:1px solid #643838;border-radius:1.25rem;background:linear-gradient(145deg,#181313,#0d0b0b);box-shadow:0 24px 80px #000;text-align:center}.warning-icon{display:grid;width:54px;height:54px;margin:0 auto 1rem;place-items:center;border:1px solid #9a4949;border-radius:50%;background:#3a1717;color:#ffb0b0;font-size:1.6rem;font-weight:900}.confirm-dialog h2{margin:.25rem 0}.confirm-dialog p{color:var(--color-muted);line-height:1.8}.confirm-actions{display:flex;justify-content:center;gap:.75rem;margin-top:1.3rem}.confirm-actions button{padding:.7rem 1rem;border-radius:.65rem;font:inherit;font-weight:800;cursor:pointer}.confirm-actions button:disabled{opacity:.55;cursor:wait}.cancel-delete{border:1px solid var(--color-border);background:transparent;color:#fff}.confirm-delete{border:1px solid #9a4949;background:#822e2e;color:#fff}
 .quiet-state {
   display: grid;
   justify-items: center;
@@ -319,10 +320,7 @@ main {
   .price {
     grid-column: 2;
   }
-  .open-ad {
-    grid-column: 3;
-    grid-row: 1/3;
-  }
+  .ad-actions{grid-column:2/-1;flex-wrap:wrap}.open-ad{margin-inline-start:auto}
   .notification {
     grid-template-columns: auto 1fr;
   }
@@ -330,3 +328,6 @@ main {
     grid-column: 2;
   }
 }
+.phone-verification{display:grid;gap:.75rem;margin-top:1.25rem;padding-top:1.25rem;border-top:1px solid var(--color-border)}.phone-verification h3,.phone-verification p{margin:0}
+.premium-member-badge{display:inline-flex;width:max-content;margin-top:.35rem;padding:.22rem .65rem;border:1px solid #e3b84f;border-radius:99px;background:#e3b84f18;color:var(--color-primary);font-size:.68rem;font-weight:900}.hero-actions{display:flex;align-items:center;gap:.6rem}.views-stat{display:block;margin-top:.25rem;color:var(--color-primary);font-size:.68rem;font-weight:800}
+.edit-profile-button{margin-inline-start:auto;padding:.35rem .7rem;border:1px solid var(--color-border);border-radius:99px;background:#e3b84f0d;color:var(--color-primary);font:inherit;font-size:.68rem;font-weight:900;cursor:pointer}.edit-profile-button:hover{border-color:var(--color-primary)}.profile-edit-form{display:grid;gap:.45rem;margin-top:1.2rem;padding-top:1rem;border-top:1px solid #ffffff0f}.profile-edit-form label{color:var(--color-muted);font-size:.72rem}.profile-edit-form .form-control{margin-top:.3rem}.avatar-input{width:100%;margin-top:.35rem;padding:.65rem;border:1px dashed #5a4b2c;border-radius:.7rem;background:#090909;color:var(--gray-300);font:inherit;font-size:.68rem}.avatar-input::file-selector-button{margin-inline-end:.6rem;padding:.35rem .6rem;border:0;border-radius:.45rem;background:var(--color-primary);color:#111;font:inherit;font-weight:800}.image-hint{color:var(--color-muted);font-size:.62rem}.profile-edit-actions{display:flex;justify-content:flex-end;gap:.5rem;margin-top:.65rem}

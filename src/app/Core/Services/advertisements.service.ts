@@ -13,6 +13,7 @@ export interface AdvertisementFilters {
   bedrooms?: number;
   bathrooms?: number;
   propertyType?: string | number;
+  activityType?: string | number;
   advertisementType?: string | number;
   publisherType?: string | number;
   sort?: string | number;

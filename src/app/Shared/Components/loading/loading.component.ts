@@ -2,18 +2,19 @@ import { ChangeDetectionStrategy, Component, DestroyRef, inject } from '@angular
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationCancel, NavigationEnd, NavigationError, NavigationStart, Router } from '@angular/router';
 import { LoadingService } from '../../../Core/Services/loading.service';
+import { TranslationService } from '../../../Core/I18n/translation.service';
 
 @Component({
   selector: 'app-loading',
   template: `
     @if (loading.visible()) {
-      <div class="loading-overlay" role="status" aria-live="polite" aria-label="Loading">
+      <div class="loading-overlay" role="status" aria-live="polite" [attr.aria-label]="i18n.locale() === 'ar' ? 'جارٍ التحميل' : 'Loading'">
         <div class="loading-content">
           <div class="logo-wrap">
             <span class="orbit" aria-hidden="true"></span>
             <img src="assets/brand/kemit-logo.jpeg" width="76" height="76" alt="" />
           </div>
-          <strong>Loading<span class="dots" aria-hidden="true"><i>.</i><i>.</i><i>.</i></span></strong>
+          <strong>{{ i18n.locale() === 'ar' ? 'جارٍ التحميل' : 'Loading' }}<span class="dots" aria-hidden="true"><i>.</i><i>.</i><i>.</i></span></strong>
         </div>
       </div>
     }
@@ -33,6 +34,7 @@ import { LoadingService } from '../../../Core/Services/loading.service';
 })
 export class LoadingComponent {
   readonly loading = inject(LoadingService);
+  readonly i18n = inject(TranslationService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
 

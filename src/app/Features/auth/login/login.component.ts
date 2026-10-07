@@ -20,14 +20,15 @@ export class LoginComponent {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private notices = inject(NotificationService);
-  private i18n = inject(TranslationService);
+  readonly i18n = inject(TranslationService);
   readonly submitting = signal(false);
+  readonly passwordVisible = signal(false);
   readonly form = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
     password: ['', Validators.required],
   });
   constructor() {
-    inject(SeoService).update('تسجيل الدخول', 'سجل دخولك إلى حساب كيميت.', '/auth/login');
+    inject(SeoService).updateLocalized('تسجيل الدخول', 'Sign in', 'سجل دخولك إلى حساب كيميت.', 'Sign in to your Kemet account.', '/auth/login');
   }
   submit() {
     if (this.form.invalid || this.submitting()) {

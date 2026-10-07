@@ -6,7 +6,7 @@ import { AuthService } from '../Services/auth.service';
 
 export const refreshInterceptor: HttpInterceptorFn = (request, next) => {
   const auth = inject(AuthService);
-  const isAuthEndpoint = /\/Auth\/(login|register|google|refresh-token|logout)$/i.test(request.url);
+  const isAuthEndpoint = /\/Auth\/(login|email-login|register|google|refresh-token|logout)$/i.test(request.url);
   if (!request.url.startsWith(environment.apiOrigin) || isAuthEndpoint || !auth.isAuthenticated()) {
     return next(request);
   }
@@ -15,10 +15,7 @@ export const refreshInterceptor: HttpInterceptorFn = (request, next) => {
       if (error.status !== 401) return throwError(() => error);
       return auth.refreshSession().pipe(
         switchMap(() => next(request)),
-        catchError(() => {
-          auth.clearSession();
-          return throwError(() => error);
-        }),
+        catchError(() => throwError(() => error)),
       );
     }),
   );

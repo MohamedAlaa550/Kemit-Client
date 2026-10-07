@@ -8,6 +8,11 @@ export interface ProjectFilters {
   pageIndex?: number;
   pageSize?: number;
   sort?: string;
+  developerId?: number;
+  governorateId?: number;
+  cityId?: number;
+  status?: string;
+  paymentMethod?: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -54,6 +59,11 @@ export class ProjectsService {
     if (filters.pageIndex) params = params.set('PageIndex', filters.pageIndex);
     if (filters.pageSize) params = params.set('PageSize', filters.pageSize);
     if (filters.sort) params = params.set('Sort', filters.sort);
+    if (filters.developerId) params = params.set('DeveloperId', filters.developerId);
+    if (filters.governorateId) params = params.set('GovernorateId', filters.governorateId);
+    if (filters.cityId) params = params.set('CityId', filters.cityId);
+    if (filters.status) params = params.set('Status', filters.status);
+    if (filters.paymentMethod) params = params.set('PaymentMethod', filters.paymentMethod);
     return params;
   }
 }

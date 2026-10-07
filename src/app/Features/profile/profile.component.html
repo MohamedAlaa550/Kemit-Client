@@ -7,16 +7,17 @@
             [src]="avatar()"
             width="104"
             height="104"
-            [alt]="user.fullName || user.userName || 'المستخدم'"
+            [alt]="user.fullName || user.userName || (i18n.locale()==='ar'?'المستخدم':'User')"
             (error)="avatarLoadFailed($event)"
           />
           <div>
             <p class="eyebrow">{{'privateSpace'|t}}</p>
             <h1>{{ user.fullName || user.userName || ('kemitUser'|t) }}</h1>
+            @if(advertisingAccount()?.memberBadge; as badge){<span class="premium-member-badge">{{badge==='VIP'?'VIP':(i18n.locale()==='ar'?'عميل مميز':'Premium member')}}</span>}
             <p>{{ user.email }}</p>
           </div>
         </div>
-        <a class="btn btn-gold" routerLink="/properties/create">+ {{'addNewListing'|t}}</a>
+        <div class="hero-actions"><a class="btn btn-ghost" routerLink="/packages">{{i18n.locale()==='ar'?'الباقات':'Plans'}}</a><a class="btn btn-gold" routerLink="/properties/create">+ {{'addNewListing'|t}}</a></div>
       </header>
 
       <div class="stats" [attr.aria-label]="'listingsSummary'|t">
@@ -42,7 +43,26 @@
               <p class="eyebrow">{{'accountData'|t}}</p>
               <h2>{{'personalInfo'|t}}</h2>
             </div>
+            @if (!editingProfile()) {
+              <button type="button" class="edit-profile-button" (click)="startProfileEdit()">{{ i18n.locale()==='ar' ? 'تعديل' : 'Edit' }}</button>
+            }
           </div>
+          @if (editingProfile()) {
+            <form class="profile-edit-form" [formGroup]="profileForm" (ngSubmit)="saveProfile()">
+              <label>{{'firstName'|t}}<input class="form-control" formControlName="firstName" autocomplete="given-name"></label>
+              @if (profileForm.controls.firstName.touched && profileForm.controls.firstName.invalid) { <small class="field-error">{{ i18n.locale()==='ar' ? 'الاسم الأول يجب أن يكون من حرفين على الأقل.' : 'First name must be at least 2 characters.' }}</small> }
+              <label>{{'lastName'|t}}<input class="form-control" formControlName="lastName" autocomplete="family-name"></label>
+              @if (profileForm.controls.lastName.touched && profileForm.controls.lastName.invalid) { <small class="field-error">{{ i18n.locale()==='ar' ? 'اسم العائلة يجب أن يكون من حرفين على الأقل.' : 'Last name must be at least 2 characters.' }}</small> }
+              <label>{{'phone'|t}}<input class="form-control" type="tel" inputmode="numeric" dir="ltr" formControlName="phoneNumber" autocomplete="tel" placeholder="01xxxxxxxxx"></label>
+              @if (profileForm.controls.phoneNumber.touched && profileForm.controls.phoneNumber.invalid) { <small class="field-error">{{ i18n.locale()==='ar' ? 'أدخل رقم هاتف مصري صحيحًا من 11 رقمًا.' : 'Enter a valid 11-digit Egyptian phone number.' }}</small> }
+              <label>{{ i18n.locale()==='ar' ? 'الصورة الشخصية' : 'Profile photo' }}<input class="avatar-input" type="file" accept="image/jpeg,image/png,image/webp" (change)="profileAvatarChanged($event)"></label>
+              <small class="image-hint">{{ selectedAvatar()?.name || (i18n.locale()==='ar' ? 'اختياري — JPG أو PNG أو WebP بحد أقصى 2MB.' : 'Optional — JPG, PNG, or WebP, maximum 2 MB.') }}</small>
+              <div class="profile-edit-actions">
+                <button type="button" class="btn btn-ghost btn-sm" [disabled]="savingProfile()" (click)="cancelProfileEdit()">{{ i18n.locale()==='ar' ? 'إلغاء' : 'Cancel' }}</button>
+                <button type="submit" class="btn btn-gold btn-sm" [disabled]="savingProfile()">{{ savingProfile() ? (i18n.locale()==='ar' ? 'جارٍ الحفظ…' : 'Saving…') : (i18n.locale()==='ar' ? 'حفظ التعديلات' : 'Save changes') }}</button>
+              </div>
+            </form>
+          } @else {
           <dl>
             <div>
               <dt>{{'firstName'|t}}</dt><dd>{{ user.firstName || ('notProvided'|t) }}</dd>
@@ -65,6 +85,16 @@
               <dt>{{'accountStatus'|t}}</dt><dd class="active-dot">{{'active'|t}}</dd>
             </div>
           </dl>
+          }
+          @if(!user.phoneNumberConfirmed && !auth.isAdministrator()){
+            <form class="phone-verification" [formGroup]="phoneVerificationForm" (ngSubmit)="phoneVerificationStep()===1?requestPhoneVerification():verifyPhone()">
+              <h3>{{i18n.locale()==='ar'?'تأكيد رقم واتساب':'Verify WhatsApp number'}}</h3>
+              <p class="muted">{{i18n.locale()==='ar'?'يلزم تأكيد رقم مصري قبل نشر الإعلانات.':'Verify an Egyptian number before publishing listings.'}}</p>
+              <input class="form-control" type="tel" inputmode="numeric" placeholder="01xxxxxxxxx" formControlName="phoneNumber" [readonly]="phoneVerificationStep()===2">
+              @if(phoneVerificationStep()===2){<input class="form-control" inputmode="numeric" maxlength="6" autocomplete="one-time-code" [placeholder]="i18n.locale()==='ar'?'رمز التحقق':'Verification code'" formControlName="code">}
+              <button class="btn btn-gold btn-sm" type="submit" [disabled]="verifyingPhone()">{{phoneVerificationStep()===1?(i18n.locale()==='ar'?'إرسال الرمز':'Send code'):(i18n.locale()==='ar'?'تأكيد الرقم':'Verify number')}}</button>
+            </form>
+          }
         </aside>
 
         <main>
@@ -83,7 +113,7 @@
                     <div>
                       <strong>{{'listingApproved'|t}}</strong><p>«{{ ad.title }}» {{'nowPublished'|t}}</p>
                     </div>
-                    <time>{{ ad.createdAt | date: 'd MMM y' : '' : 'ar-EG' }}</time>
+                    <time>{{ ad.createdAt | date: 'd MMM y' : '' : (i18n.locale()==='ar'?'ar-EG':'en-US') }}</time>
                   </a>
                 }
               </div>
@@ -121,18 +151,18 @@
                         <span class="status" [attr.data-status]="statusKey(ad.status)">{{
                           statusLabel(ad.status)
                         }}</span
-                        ><time>{{ ad.createdAt | date: 'd MMM y' : '' : 'ar-EG' }}</time>
+                        ><time>{{ ad.createdAt | date: 'd MMM y' : '' : (i18n.locale()==='ar'?'ar-EG':'en-US') }}</time>
                       </div>
                       <h3>{{ ad.title }}</h3>
-                      <p>{{ ad.cityName }}، {{ ad.governorateName }} · {{ ad.area }} {{i18n.locale()==='ar'?'م²':'m²'}}</p>
+                      <p>{{ ad.cityName | locationName }}، {{ ad.governorateName | locationName }} · {{ ad.area }} {{i18n.locale()==='ar'?'م²':'m²'}}</p>
+                      @if(ad.viewCount !== null && ad.viewCount !== undefined){<small class="views-stat">◉ {{ad.viewCount}} {{i18n.locale()==='ar'?'مشاهدة':'views'}}</small>}
                     </div>
                     <strong class="price">{{ad.price|number:'1.0-0'}} {{'egp'|t}}</strong>
-                    <a
-                      class="open-ad"
-                      [routerLink]="['/properties', ad.id]"
-                      [attr.aria-label]="('openListing'|t) + ' ' + ad.title"
-                      >←</a
-                    >
+                    <div class="ad-actions">
+                      <a class="manage-ad edit-ad" [routerLink]="['/properties', ad.id, 'edit']">{{i18n.locale()==='ar'?'تعديل':'Edit'}}</a>
+                      <button class="manage-ad delete-ad" type="button" (click)="askToDelete(ad)">{{i18n.locale()==='ar'?'حذف':'Delete'}}</button>
+                      <a class="open-ad" [routerLink]="['/properties', ad.id]" [attr.aria-label]="('openListing'|t) + ' ' + ad.title">←</a>
+                    </div>
                   </article>
                 }
               </div>
@@ -148,3 +178,16 @@
     }
   </div>
 </section>
+@if (advertisementToDelete(); as ad) {
+  <div class="confirm-overlay" role="presentation" (click)="cancelDelete()">
+    <section class="confirm-dialog" role="alertdialog" aria-modal="true" aria-labelledby="delete-title" (click)="$event.stopPropagation()">
+      <span class="warning-icon" aria-hidden="true">!</span>
+      <h2 id="delete-title">{{i18n.locale()==='ar'?'حذف الإعلان؟':'Delete listing?'}}</h2>
+      <p>{{i18n.locale()==='ar'?'هل أنت متأكد من حذف إعلان «'+ad.title+'»؟ لا يمكن التراجع عن هذا الإجراء.':'Are you sure you want to delete “'+ad.title+'”? This action cannot be undone.'}}</p>
+      <div class="confirm-actions">
+        <button type="button" class="cancel-delete" [disabled]="deletingAdvertisement()" (click)="cancelDelete()">{{i18n.locale()==='ar'?'إلغاء':'Cancel'}}</button>
+        <button type="button" class="confirm-delete" [disabled]="deletingAdvertisement()" (click)="confirmDelete()">{{deletingAdvertisement()?(i18n.locale()==='ar'?'جارٍ الحذف...':'Deleting...'):(i18n.locale()==='ar'?'نعم، احذف الإعلان':'Yes, delete listing')}}</button>
+      </div>
+    </section>
+  </div>
+}

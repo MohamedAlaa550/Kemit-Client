@@ -3,6 +3,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
+  OnDestroy,
   afterNextRender,
   inject,
   input,
@@ -87,7 +88,11 @@ type GoogleCredentialResponse = { credential?: string };
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class GoogleSignInComponent {
+export class GoogleSignInComponent implements OnDestroy {
+  private static activeInstance: GoogleSignInComponent | null = null;
+  private static initialized = false;
+  private static scriptPromise: Promise<void> | null = null;
+
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
@@ -101,8 +106,15 @@ export class GoogleSignInComponent {
 
   constructor() {
     afterNextRender(() => {
+      GoogleSignInComponent.activeInstance = this;
       if (this.configured) void this.initialize();
     });
+  }
+
+  ngOnDestroy() {
+    if (GoogleSignInComponent.activeInstance === this) {
+      GoogleSignInComponent.activeInstance = null;
+    }
   }
 
   private async initialize() {
@@ -110,12 +122,16 @@ export class GoogleSignInComponent {
     const google = (window as any).google;
     const host = this.button()?.nativeElement;
     if (!google?.accounts?.id || !host) return;
-    google.accounts.id.initialize({
-      client_id: environment.googleClientId,
-      callback: (response: GoogleCredentialResponse) => this.handleCredential(response),
-      auto_select: false,
-      cancel_on_tap_outside: true,
-    });
+    if (!GoogleSignInComponent.initialized) {
+      google.accounts.id.initialize({
+        client_id: environment.googleClientId,
+        callback: (response: GoogleCredentialResponse) =>
+          GoogleSignInComponent.activeInstance?.handleCredential(response),
+        auto_select: false,
+        cancel_on_tap_outside: true,
+      });
+      GoogleSignInComponent.initialized = true;
+    }
     google.accounts.id.renderButton(host, {
       type: 'standard',
       theme: 'filled_black',
@@ -148,7 +164,11 @@ export class GoogleSignInComponent {
 
   private loadGoogleScript(): Promise<void> {
     if ((window as any).google?.accounts?.id) return Promise.resolve();
-    return new Promise((resolve, reject) => {
+    if (GoogleSignInComponent.scriptPromise) {
+      return GoogleSignInComponent.scriptPromise;
+    }
+
+    GoogleSignInComponent.scriptPromise = new Promise((resolve, reject) => {
       const existing = this.document.getElementById(
         'google-identity-script',
       ) as HTMLScriptElement | null;
@@ -166,5 +186,6 @@ export class GoogleSignInComponent {
       script.onerror = reject;
       this.document.head.appendChild(script);
     });
+    return GoogleSignInComponent.scriptPromise;
   }
 }
