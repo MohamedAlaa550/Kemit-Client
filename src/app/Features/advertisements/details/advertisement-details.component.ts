@@ -320,7 +320,7 @@ export class AdvertisementDetailsComponent {
       `مرحبًا كيميت، أريد إضافة كيميت كوسيط لإتمام الصفقة بأمان بخصوص الإعلان التالي:\n${this.item()?.title ?? ''}\n${this.advertisementUrl()}`,
       `Hello Kemet, I would like Kemet to mediate this deal safely for the following listing:\n${this.item()?.title ?? ''}\n${this.advertisementUrl()}`,
     );
-    return `https://wa.me/201120903025?text=${encodeURIComponent(message)}`;
+    return `https://wa.me/201100060960?text=${encodeURIComponent(message)}`;
   });
   readonly facebookShareUrl = computed(() => `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(this.advertisementUrl())}`);
   readonly advertiserName = computed(() => this.item()?.advertiserName || this.publisherLabel());
