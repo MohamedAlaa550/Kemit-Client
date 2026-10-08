@@ -39,6 +39,7 @@ yarn-error.log
 /coverage
 /.backend-build
 /.backend-validation
+/.backend-postgres-validation
 /libpeerconnection.log
 testem.log
 /typings
