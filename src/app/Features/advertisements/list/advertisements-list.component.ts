@@ -188,7 +188,7 @@ export class AdvertisementsListComponent {
         this.loadFailed.set(false);
         const filters: AdvertisementFilters = {
           pageIndex,
-          pageSize: 6,
+          pageSize:18,
           governorateId: selected.governorateId ?? undefined,
           cityId: selected.cityId ?? undefined,
           bedrooms: selected.bedrooms ?? undefined,

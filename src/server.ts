@@ -12,12 +12,42 @@ const browserDistFolder = join(import.meta.dirname, '../browser');
 const app = express();
 const angularApp = new AngularNodeAppEngine();
 
-app.use((_req, res, next) => {
+app.disable('x-powered-by');
+
+app.use((req, res, next) => {
+  if (req.method === 'TRACE' || req.method === 'TRACK') {
+    res.status(405).setHeader('Allow', 'GET, HEAD, OPTIONS');
+    res.end();
+    return;
+  }
+
   res.setHeader('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
   res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=(self)');
   res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+  res.setHeader(
+    'Content-Security-Policy',
+    [
+      "default-src 'self'",
+      "base-uri 'self'",
+      "object-src 'none'",
+      "frame-ancestors 'self'",
+      "form-action 'self'",
+      "script-src 'self' 'unsafe-inline' https://accounts.google.com",
+      "style-src 'self' 'unsafe-inline' https://accounts.google.com",
+      "img-src 'self' data: blob: https:",
+      "font-src 'self' data:",
+      "connect-src 'self' https://api.kemet-masr.com https://nominatim.openstreetmap.org https://accounts.google.com",
+      "frame-src https://accounts.google.com",
+      "manifest-src 'self'",
+      "worker-src 'self' blob:",
+      "upgrade-insecure-requests",
+    ].join('; '),
+  );
+  if (process.env['NODE_ENV'] === 'production') {
+    res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+  }
   next();
 });
 
