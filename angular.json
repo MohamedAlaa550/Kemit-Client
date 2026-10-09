@@ -35,6 +35,8 @@
               "allowedHosts": [
                 "kemet-masr.com",
                 "www.kemet-masr.com",
+                "kemit-website-production.up.railway.app",
+                "healthcheck.railway.app",
                 "localhost"
               ]
             },
