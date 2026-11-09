@@ -53,8 +53,6 @@
               @if (profileForm.controls.firstName.touched && profileForm.controls.firstName.invalid) { <small class="field-error">{{ i18n.locale()==='ar' ? 'الاسم الأول يجب أن يكون من حرفين على الأقل.' : 'First name must be at least 2 characters.' }}</small> }
               <label>{{'lastName'|t}}<input class="form-control" formControlName="lastName" autocomplete="family-name"></label>
               @if (profileForm.controls.lastName.touched && profileForm.controls.lastName.invalid) { <small class="field-error">{{ i18n.locale()==='ar' ? 'اسم العائلة يجب أن يكون من حرفين على الأقل.' : 'Last name must be at least 2 characters.' }}</small> }
-              <label>{{'phone'|t}}<input class="form-control" type="tel" inputmode="numeric" dir="ltr" formControlName="phoneNumber" autocomplete="tel" placeholder="01xxxxxxxxx"></label>
-              @if (profileForm.controls.phoneNumber.touched && profileForm.controls.phoneNumber.invalid) { <small class="field-error">{{ i18n.locale()==='ar' ? 'أدخل رقم هاتف مصري صحيحًا من 11 رقمًا.' : 'Enter a valid 11-digit Egyptian phone number.' }}</small> }
               <label>{{ i18n.locale()==='ar' ? 'الصورة الشخصية' : 'Profile photo' }}<input class="avatar-input" type="file" accept="image/jpeg,image/png,image/webp" (change)="profileAvatarChanged($event)"></label>
               <small class="image-hint">{{ selectedAvatar()?.name || (i18n.locale()==='ar' ? 'اختياري — JPG أو PNG أو WebP بحد أقصى 2MB.' : 'Optional — JPG, PNG, or WebP, maximum 2 MB.') }}</small>
               <div class="profile-edit-actions">
@@ -76,6 +74,9 @@
             </div>
             <div>
               <dt>{{'phone'|t}}</dt><dd dir="ltr">{{ user.phoneNumber || ('notProvided'|t) }}</dd>
+              @if(!auth.isAdministrator()){
+                <button type="button" class="edit-profile-button" (click)="startPhoneChange()">{{i18n.locale()==='ar'?'تغيير رقم الهاتف':'Change phone number'}}</button>
+              }
             </div>
             <div>
               <dt>{{'accountType'|t}}</dt>
@@ -86,13 +87,16 @@
             </div>
           </dl>
           }
-          @if(!user.phoneNumberConfirmed && !auth.isAdministrator()){
+          @if((!user.phoneNumberConfirmed || changingPhone()) && !auth.isAdministrator()){
             <form class="phone-verification" [formGroup]="phoneVerificationForm" (ngSubmit)="phoneVerificationStep()===1?requestPhoneVerification():verifyPhone()">
-              <h3>{{i18n.locale()==='ar'?'تأكيد رقم واتساب':'Verify WhatsApp number'}}</h3>
-              <p class="muted">{{i18n.locale()==='ar'?'يلزم تأكيد رقم مصري قبل نشر الإعلانات.':'Verify an Egyptian number before publishing listings.'}}</p>
+              <h3>{{i18n.locale()==='ar'?(changingPhone()?'تغيير رقم الهاتف':'تأكيد رقم واتساب'):(changingPhone()?'Change phone number':'Verify WhatsApp number')}}</h3>
+              <p class="muted">{{i18n.locale()==='ar'?'سيتم حفظ الرقم الجديد بعد التحقق منه فقط.':'The new number will only be saved after verification.'}}</p>
               <input class="form-control" type="tel" inputmode="numeric" placeholder="01xxxxxxxxx" formControlName="phoneNumber" [readonly]="phoneVerificationStep()===2">
               @if(phoneVerificationStep()===2){<input class="form-control" inputmode="numeric" maxlength="6" autocomplete="one-time-code" [placeholder]="i18n.locale()==='ar'?'رمز التحقق':'Verification code'" formControlName="code">}
-              <button class="btn btn-gold btn-sm" type="submit" [disabled]="verifyingPhone()">{{phoneVerificationStep()===1?(i18n.locale()==='ar'?'إرسال الرمز':'Send code'):(i18n.locale()==='ar'?'تأكيد الرقم':'Verify number')}}</button>
+              <div class="profile-edit-actions">
+                @if(changingPhone()){<button class="btn btn-ghost btn-sm" type="button" [disabled]="verifyingPhone()" (click)="cancelPhoneChange()">{{i18n.locale()==='ar'?'إلغاء':'Cancel'}}</button>}
+                <button class="btn btn-gold btn-sm" type="submit" [disabled]="verifyingPhone()">{{phoneVerificationStep()===1?(i18n.locale()==='ar'?'إرسال الرمز':'Send code'):(i18n.locale()==='ar'?'تأكيد الرقم':'Verify number')}}</button>
+              </div>
             </form>
           }
         </aside>

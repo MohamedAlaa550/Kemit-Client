@@ -41,6 +41,7 @@ export class ProfileComponent {
   readonly deletingAdvertisement = signal(false);
   readonly phoneVerificationStep = signal<1 | 2>(1);
   readonly verifyingPhone = signal(false);
+  readonly changingPhone = signal(false);
   readonly editingProfile = signal(false);
   readonly savingProfile = signal(false);
   readonly selectedAvatar = signal<File | null>(null);
@@ -48,7 +49,6 @@ export class ProfileComponent {
   readonly profileForm = this.fb.nonNullable.group({
     firstName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
     lastName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
-    phoneNumber: ['', [Validators.required, Validators.pattern(/^01[0125][0-9]{8}$/)]],
   });
   readonly phoneVerificationForm = this.fb.nonNullable.group({
     phoneNumber: ['', [Validators.required, Validators.pattern(/^01[0125][0-9]{8}$/)]],
@@ -88,7 +88,6 @@ export class ProfileComponent {
     this.profileForm.setValue({
       firstName: user.firstName ?? '',
       lastName: user.lastName ?? '',
-      phoneNumber: user.phoneNumber ?? '',
     });
     this.selectedAvatar.set(null);
     this.editingProfile.set(true);
@@ -121,7 +120,6 @@ export class ProfileComponent {
     const data = new FormData();
     data.append('firstName', value.firstName.trim());
     data.append('lastName', value.lastName.trim());
-    data.append('phoneNumber', value.phoneNumber.trim());
     const avatar = this.selectedAvatar();
     if (avatar) data.append('avatar', avatar, avatar.name);
     this.savingProfile.set(true);
@@ -144,12 +142,29 @@ export class ProfileComponent {
     });
   }
 
+  startPhoneChange() {
+    const user = this.auth.currentUser();
+    this.phoneVerificationForm.reset({ phoneNumber: user?.phoneNumber ?? '', code: '' });
+    this.phoneVerificationStep.set(1);
+    this.changingPhone.set(true);
+  }
+
+  cancelPhoneChange() {
+    if (this.verifyingPhone()) return;
+    this.phoneVerificationStep.set(1);
+    this.changingPhone.set(false);
+  }
+
   verifyPhone() {
     const { phoneNumber, code } = this.phoneVerificationForm.getRawValue();
     if (!/^\d{6}$/.test(code) || this.verifyingPhone()) { this.phoneVerificationForm.controls.code.setErrors({ invalid: true }); return; }
     this.verifyingPhone.set(true);
     this.auth.verifyPhoneLinkOtp({ phoneNumber, code }).pipe(finalize(() => this.verifyingPhone.set(false))).subscribe({
-      next: () => this.auth.getCurrentUser().subscribe({ next: () => this.notices.show(this.i18n.locale()==='ar'?'تم تأكيد رقم واتساب.':'WhatsApp number verified.','success') }),
+      next: () => this.auth.getCurrentUser().subscribe({ next: () => {
+        this.phoneVerificationStep.set(1);
+        this.changingPhone.set(false);
+        this.notices.show(this.i18n.locale()==='ar'?'تم تأكيد رقم واتساب.':'WhatsApp number verified.','success');
+      } }),
     });
   }
 
