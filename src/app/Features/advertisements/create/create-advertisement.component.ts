@@ -157,40 +157,42 @@ export class CreateAdvertisementComponent implements AfterViewInit, OnDestroy {
 
     this.mapInitializationStarted = true;
     try {
-      const L = await import('leaflet');
-    const initial: L.LatLngExpression = [30.0444, 31.2357];
+      await import('leaflet');
+      const L = (window as typeof window & { L?: typeof import('leaflet') }).L;
+      if (!L?.map) throw new Error('Leaflet did not initialize in the browser.');
+      const initial: L.LatLngExpression = [30.0444, 31.2357];
       this.map = L.map(mapElement).setView(initial, 7);
       L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '&copy; OpenStreetMap contributors',
-    }).addTo(this.map);
-    const icon = L.divIcon({
-      className: '',
-      html: '<span style="display:block;width:28px;height:38px;border:3px solid #070707;border-radius:50% 50% 50% 0;background:#e3b84f;box-shadow:0 6px 18px #000;transform:rotate(-45deg)"></span>',
-      iconSize: [28, 38],
-      iconAnchor: [14, 38],
-    });
-    const setLocation = (latitude: number, longitude: number, center = true, zoom?: number) => {
-      this.form.patchValue({ latitude: latitude.toFixed(7), longitude: longitude.toFixed(7) });
-      if (!this.marker) {
-        this.marker = L.marker([latitude, longitude], { draggable: true, icon }).addTo(this.map!);
-        this.marker.on('dragend', (event) => {
-          const point = event.target.getLatLng();
-          setLocation(point.lat, point.lng, false);
-        });
-      } else this.marker.setLatLng([latitude, longitude]);
-      if (center) this.map?.flyTo([latitude, longitude], zoom ?? this.map.getZoom(), { duration: .8 });
-    };
-    this.setMapLocation = (latitude, longitude, zoom = 13) => setLocation(latitude, longitude, true, zoom);
-    this.map.on('click', (event) => setLocation(event.latlng.lat, event.latlng.lng));
-    const savedLatitude = Number(this.form.controls.latitude.value);
-    const savedLongitude = Number(this.form.controls.longitude.value);
-    if (Number.isFinite(savedLatitude) && Number.isFinite(savedLongitude) && (savedLatitude || savedLongitude))
-      setLocation(savedLatitude, savedLongitude, true, 13);
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap contributors',
+      }).addTo(this.map);
+      const icon = L.divIcon({
+        className: '',
+        html: '<span style="display:block;width:28px;height:38px;border:3px solid #070707;border-radius:50% 50% 50% 0;background:#e3b84f;box-shadow:0 6px 18px #000;transform:rotate(-45deg)"></span>',
+        iconSize: [28, 38],
+        iconAnchor: [14, 38],
+      });
+      const setLocation = (latitude: number, longitude: number, center = true, zoom?: number) => {
+        this.form.patchValue({ latitude: latitude.toFixed(7), longitude: longitude.toFixed(7) });
+        if (!this.marker) {
+          this.marker = L.marker([latitude, longitude], { draggable: true, icon }).addTo(this.map!);
+          this.marker.on('dragend', (event) => {
+            const point = event.target.getLatLng();
+            setLocation(point.lat, point.lng, false);
+          });
+        } else this.marker.setLatLng([latitude, longitude]);
+        if (center) this.map?.flyTo([latitude, longitude], zoom ?? this.map.getZoom(), { duration: .8 });
+      };
+      this.setMapLocation = (latitude, longitude, zoom = 13) => setLocation(latitude, longitude, true, zoom);
+      this.map.on('click', (event) => setLocation(event.latlng.lat, event.latlng.lng));
+      const savedLatitude = Number(this.form.controls.latitude.value);
+      const savedLongitude = Number(this.form.controls.longitude.value);
+      if (Number.isFinite(savedLatitude) && Number.isFinite(savedLongitude) && (savedLatitude || savedLongitude))
+        setLocation(savedLatitude, savedLongitude, true, 13);
       if (typeof ResizeObserver !== 'undefined') {
-      this.mapResizeObserver = new ResizeObserver(() => this.map?.invalidateSize({ debounceMoveend: true }));
-      this.mapResizeObserver.observe(mapElement);
-    }
+        this.mapResizeObserver = new ResizeObserver(() => this.map?.invalidateSize({ debounceMoveend: true }));
+        this.mapResizeObserver.observe(mapElement);
+      }
       this.mapError.set('');
       requestAnimationFrame(() => this.map?.invalidateSize({ animate: false }));
     } catch (error) {
