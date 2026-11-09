@@ -17,7 +17,7 @@ const arabicNames: Record<string, string> = {
   'New Valley': 'الوادي الجديد', Kharga: 'الخارجة', Dakhla: 'الداخلة', Farafra: 'الفرافرة', Paris: 'باريس', Balat: 'بلاط',
   Suez: 'السويس', Arbaeen: 'الأربعين', Ataqa: 'عتاقة', Ganayen: 'الجناين',
   Aswan: 'أسوان', 'Kom Ombo': 'كوم أمبو', Edfu: 'إدفو', Daraw: 'دراو', 'Nasr El Nuba': 'نصر النوبة', 'Abu Simbel': 'أبو سمبل',
-  Assiut: 'أسيوط', Dairut: 'ديروط', Manfalut: 'منفلوط', Abnoub: 'أبنوب', 'El Badari': 'البداري', Qusiya: 'القوصية', 'Abu Tig': 'أبو تيج', 'Sahel Selim': 'ساحل سليم',
+  Assiut: 'أسيوط', 'New Assiut': 'أسيوط الجديدة', Dairut: 'ديروط', Manfalut: 'منفلوط', Abnoub: 'أبنوب', 'El Badari': 'البداري', Qusiya: 'القوصية', 'Abu Tig': 'أبو تيج', 'Sahel Selim': 'ساحل سليم',
   'Beni Suef': 'بني سويف', 'El Wasta': 'الواسطى', Nasser: 'ناصر', Ehnasia: 'إهناسيا', Biba: 'ببا', Samasta: 'سمسطا', 'El Fashn': 'الفشن',
   'Port Said': 'بورسعيد', 'Port Fouad': 'بورفؤاد', 'El Arab': 'العرب', 'El Dawahy': 'الضواحي', 'El Ganoub': 'الجنوب',
   Damietta: 'دمياط', 'Ras El Bar': 'رأس البر', Faraskur: 'فارسكور', 'Kafr Saad': 'كفر سعد', Zarqa: 'الزرقا', 'New Damietta': 'دمياط الجديدة',
@@ -28,7 +28,15 @@ const arabicNames: Record<string, string> = {
   Luxor: 'الأقصر', Esna: 'إسنا', Armant: 'أرمنت', Tod: 'الطود', Qurna: 'القرنة', 'New Tiba': 'طيبة الجديدة',
   Qena: 'قنا', Qus: 'قوص', 'Nag Hammadi': 'نجع حمادي', Dishna: 'دشنا', 'Abu Tesht': 'أبو تشت', Farshut: 'فرشوط', Naqada: 'نقادة',
   'North Sinai': 'شمال سيناء', Arish: 'العريش', 'Sheikh Zuweid': 'الشيخ زويد', Rafah: 'رفح', 'Bir El Abd': 'بئر العبد', Hasana: 'الحسنة', Nakhl: 'نخل',
-  Sohag: 'سوهاج', Akhmim: 'أخميم', Girga: 'جرجا', Tahta: 'طهطا', Tama: 'طما', Juhayna: 'جهينة', 'El Maragha': 'المراغة', 'Dar El Salam': 'دار السلام',
+  Sohag: 'سوهاج', 'New Sohag': 'سوهاج الجديدة', Akhmim: 'أخميم', 'New Akhmim': 'أخميم الجديدة', Girga: 'جرجا', Tahta: 'طهطا', Tama: 'طما', Juhayna: 'جهينة', 'El Maragha': 'المراغة', 'Dar El Salam': 'دار السلام',
+  'El Shorouk': 'الشروق', '15 May City': 'مدينة 15 مايو', 'New Administrative Capital': 'العاصمة الإدارية الجديدة', 'Capital Gardens': 'حدائق العاصمة',
+  'October Gardens': 'حدائق أكتوبر', 'New 6 October': '6 أكتوبر الجديدة', 'New Sphinx': 'سفنكس الجديدة', 'Sheikh Zayed Extension': 'امتداد الشيخ زايد', 'New Warraq': 'الوراق الجديدة',
+  'New Borg El Arab': 'برج العرب الجديدة', 'New Mansoura': 'المنصورة الجديدة', 'New Rashid': 'رشيد الجديدة', 'New Fayoum': 'الفيوم الجديدة', 'New Ismailia': 'الإسماعيلية الجديدة',
+  'New Minya': 'المنيا الجديدة', 'New Mallawi': 'ملوي الجديدة', Obour: 'العبور', 'New Obour': 'العبور الجديدة', 'New Suez': 'السويس الجديدة',
+  'New Aswan': 'أسوان الجديدة', 'New Toshka': 'توشكى الجديدة', 'Nasser City (West Assiut)': 'مدينة ناصر (غرب أسيوط)',
+  'New Beni Suef': 'بني سويف الجديدة', 'New Fashn': 'الفشن الجديدة', 'Salam City (East Port Said)': 'مدينة سلام (شرق بورسعيد)',
+  'New Salhia': 'الصالحية الجديدة', 'New Alamein': 'العلمين الجديدة', 'New Ras El Hekma': 'رأس الحكمة الجديدة', 'New Luxor': 'الأقصر الجديدة',
+  'New Qena': 'قنا الجديدة', 'West Qena': 'غرب قنا', 'New Rafah': 'رفح الجديدة',
 };
 
 const englishNames = new Map(Object.entries(arabicNames).map(([english, arabic]) => [arabic, english]));
