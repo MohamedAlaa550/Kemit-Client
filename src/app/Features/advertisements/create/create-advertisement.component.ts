@@ -411,7 +411,7 @@ export class CreateAdvertisementComponent implements AfterViewInit, OnDestroy {
     this.phoneVerified.set(true);
     this.loadAdvertisingAccount();
     this.auth.getCurrentUser().subscribe({ error: () => {} });
-    setTimeout(() => this.map?.invalidateSize(), 0);
+    this.refreshMapAfterReveal();
   }
 
   private checkPhoneVerification() {
@@ -420,10 +420,21 @@ export class CreateAdvertisementComponent implements AfterViewInit, OnDestroy {
         const verified = user.phoneNumberConfirmed === true || this.auth.isAdministrator();
         this.phoneVerified.set(verified);
         this.checkingPhone.set(false);
-        if (verified) this.loadAdvertisingAccount();
+        if (verified) {
+          this.loadAdvertisingAccount();
+          this.refreshMapAfterReveal();
+        }
       },
       error: () => this.checkingPhone.set(false),
     });
+  }
+
+  private refreshMapAfterReveal() {
+    if (!isPlatformBrowser(this.platformId)) return;
+    requestAnimationFrame(() =>
+      requestAnimationFrame(() => this.map?.invalidateSize({ animate: false })),
+    );
+    setTimeout(() => this.map?.invalidateSize({ animate: false }), 250);
   }
 
   private loadAdvertisingAccount() {
