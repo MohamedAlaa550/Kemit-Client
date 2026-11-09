@@ -47,6 +47,8 @@ export class CreateAdvertisementComponent implements AfterViewInit, OnDestroy {
   private map?: Map;
   private marker?: Marker;
   private mapResizeObserver?: ResizeObserver;
+  private mapInitializationStarted = false;
+  private destroyed = false;
   private setMapLocation?: (latitude: number, longitude: number, zoom?: number) => void;
   private locationRequestId = 0;
   readonly governorates = signal<LocationOption[]>([]);
@@ -60,6 +62,7 @@ export class CreateAdvertisementComponent implements AfterViewInit, OnDestroy {
   readonly loadingEntitlements = signal(false);
   readonly checkingPhone = signal(true);
   readonly phoneVerified = signal(false);
+  readonly mapError = signal('');
   readonly advertisementId = Number(this.route.snapshot.paramMap.get('id')) || null;
   readonly editMode = this.advertisementId !== null;
   readonly residentialPropertyTypes = [
@@ -135,15 +138,30 @@ export class CreateAdvertisementComponent implements AfterViewInit, OnDestroy {
     });
   }
 
-  async ngAfterViewInit() {
-    if (!isPlatformBrowser(this.platformId)) return;
-    const L = await import('leaflet');
+  ngAfterViewInit() {
+    this.scheduleMapInitialization();
+  }
+
+  private scheduleMapInitialization(attempt = 0) {
+    if (!isPlatformBrowser(this.platformId) || this.destroyed || this.map || this.mapInitializationStarted) return;
+    requestAnimationFrame(() => void this.initializeMapWhenVisible(attempt));
+  }
+
+  private async initializeMapWhenVisible(attempt = 0) {
+    if (this.destroyed || this.map || this.mapInitializationStarted) return;
+    const mapElement = document.getElementById('property-map');
+    if (!this.phoneVerified() || !mapElement || mapElement.clientWidth === 0 || mapElement.clientHeight === 0) {
+      if (attempt < 30) setTimeout(() => this.scheduleMapInitialization(attempt + 1), 100);
+      return;
+    }
+
+    this.mapInitializationStarted = true;
+    try {
+      const L = await import('leaflet');
     const initial: L.LatLngExpression = [30.0444, 31.2357];
-    this.map = L.map('property-map').setView(initial, 7);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      this.map = L.map(mapElement).setView(initial, 7);
+      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
-      subdomains: 'abc',
-      crossOrigin: true,
       attribution: '&copy; OpenStreetMap contributors',
     }).addTo(this.map);
     const icon = L.divIcon({
@@ -169,12 +187,19 @@ export class CreateAdvertisementComponent implements AfterViewInit, OnDestroy {
     const savedLongitude = Number(this.form.controls.longitude.value);
     if (Number.isFinite(savedLatitude) && Number.isFinite(savedLongitude) && (savedLatitude || savedLongitude))
       setLocation(savedLatitude, savedLongitude, true, 13);
-    const mapElement = document.getElementById('property-map');
-    if (mapElement && typeof ResizeObserver !== 'undefined') {
+      if (typeof ResizeObserver !== 'undefined') {
       this.mapResizeObserver = new ResizeObserver(() => this.map?.invalidateSize({ debounceMoveend: true }));
       this.mapResizeObserver.observe(mapElement);
     }
-    requestAnimationFrame(() => this.map?.invalidateSize());
+      this.mapError.set('');
+      requestAnimationFrame(() => this.map?.invalidateSize({ animate: false }));
+    } catch (error) {
+      console.error('Failed to initialize the property map.', error);
+      this.mapError.set(this.i18n.locale() === 'ar'
+        ? 'تعذر تحميل الخريطة. حدّث الصفحة أو تحقق من اتصال الإنترنت.'
+        : 'The map could not be loaded. Refresh the page or check your internet connection.');
+      this.mapInitializationStarted = false;
+    }
   }
 
   governorateChanged() {
@@ -357,6 +382,7 @@ export class CreateAdvertisementComponent implements AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy() {
+    this.destroyed = true;
     this.previews().forEach((item) => URL.revokeObjectURL(item.url));
     this.mapResizeObserver?.disconnect();
     this.map?.remove();
@@ -431,6 +457,10 @@ export class CreateAdvertisementComponent implements AfterViewInit, OnDestroy {
 
   private refreshMapAfterReveal() {
     if (!isPlatformBrowser(this.platformId)) return;
+    if (!this.map) {
+      this.scheduleMapInitialization();
+      return;
+    }
     requestAnimationFrame(() =>
       requestAnimationFrame(() => this.map?.invalidateSize({ animate: false })),
     );

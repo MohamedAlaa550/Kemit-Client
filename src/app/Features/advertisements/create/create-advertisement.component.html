@@ -259,6 +259,9 @@
             <strong>{{ 'mapTitle' | t }}</strong>
             <p>{{ 'mapHint' | t }}</p>
             <div id="property-map" class="map-picker"></div>
+            @if (mapError()) {
+              <small class="map-error">{{ mapError() }}</small>
+            }
             @if (form.controls.latitude.value) {
               <small>✓ {{ 'selectedLocation' | t }}</small>
             }
