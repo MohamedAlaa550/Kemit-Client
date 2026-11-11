@@ -1,4 +1,5 @@
 import { DatePipe, isPlatformBrowser } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
@@ -63,6 +64,7 @@ export class CreateAdvertisementComponent implements AfterViewInit, OnDestroy {
   readonly checkingPhone = signal(true);
   readonly phoneVerified = signal(false);
   readonly mapError = signal('');
+  readonly publishingLimitOpen = signal(false);
   readonly advertisementId = Number(this.route.snapshot.paramMap.get('id')) || null;
   readonly editMode = this.advertisementId !== null;
   readonly residentialPropertyTypes = [
@@ -397,7 +399,11 @@ export class CreateAdvertisementComponent implements AfterViewInit, OnDestroy {
 
   submit() {
     this.form.markAllAsTouched();
-    if (!this.phoneVerified() || this.form.invalid || this.installmentValuesInvalid() || (!this.editMode && !this.canPublish()) || (!this.editMode && this.images().length < 3) || (this.editMode && this.images().length > 0 && this.images().length < 3) || this.submitting()) return;
+    if (!this.editMode && !this.canPublish()) {
+      this.publishingLimitOpen.set(true);
+      return;
+    }
+    if (!this.phoneVerified() || this.form.invalid || this.installmentValuesInvalid() || (!this.editMode && this.images().length < 3) || (this.editMode && this.images().length > 0 && this.images().length < 3) || this.submitting()) return;
     this.submitting.set(true);
     const data = new FormData();
     const value = this.form.getRawValue();
@@ -422,7 +428,13 @@ export class CreateAdvertisementComponent implements AfterViewInit, OnDestroy {
         );
         void this.router.navigate(['/profile']);
       },
-      error: () => this.submitting.set(false),
+      error: (error: HttpErrorResponse) => {
+        this.submitting.set(false);
+        if (!this.editMode && this.isPublishingLimitError(error)) {
+          this.loadAdvertisingAccount();
+          this.publishingLimitOpen.set(true);
+        }
+      },
     });
   }
 
@@ -434,6 +446,15 @@ export class CreateAdvertisementComponent implements AfterViewInit, OnDestroy {
   }
 
   selectFreePublishing() { this.form.controls.advertisingPurchaseId.setValue(null); }
+
+  closePublishingLimit() { this.publishingLimitOpen.set(false); }
+
+  private isPublishingLimitError(error: HttpErrorResponse) {
+    const body = typeof error.error === 'string'
+      ? error.error
+      : JSON.stringify(error.error ?? '');
+    return /two free advertisements have been used|purchase a plan to continue/i.test(body);
+  }
 
   phoneVerificationCompleted() {
     this.phoneVerified.set(true);
