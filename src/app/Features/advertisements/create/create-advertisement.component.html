@@ -32,6 +32,9 @@
                     <input type="radio" name="publishingCredit" [checked]="form.controls.advertisingPurchaseId.value === null" (change)="selectFreePublishing()">
                     <span><strong>{{ i18n.locale()==='ar'?'إعلان مجاني':'Free listing' }}</strong><small>{{ account.freeAdvertisementsRemaining }} {{ i18n.locale()==='ar'?'متبقي':'remaining' }}</small></span>
                   </label>
+                  @if (account.freeAdvertisementsRemaining === 1) {
+                    <p class="last-free-warning">{{ i18n.locale()==='ar'?'هذا آخر إعلان مجاني متاح لك. بعد نشره ستحتاج إلى الاشتراك في باقة لإضافة إعلان جديد.':'This is your last free listing. You will need a plan to publish another listing.' }}</p>
+                  }
                 }
                 @for (purchase of account.activePurchases; track purchase.id) {
                   <label [class.selected]="form.controls.advertisingPurchaseId.value === purchase.id">
@@ -311,3 +314,18 @@
     </form>
   </div>
 </section>
+@if (publishingLimitOpen()) {
+  <div class="publishing-limit-backdrop" role="presentation" (click)="closePublishingLimit()">
+    <section class="publishing-limit-dialog" role="dialog" aria-modal="true" aria-labelledby="publishing-limit-title" (click)="$event.stopPropagation()">
+      <button class="dialog-close" type="button" (click)="closePublishingLimit()" [attr.aria-label]="i18n.locale()==='ar'?'إغلاق':'Close'">×</button>
+      <span class="dialog-icon" aria-hidden="true">!</span>
+      <h2 id="publishing-limit-title">{{ i18n.locale()==='ar'?'انتهت إعلاناتك المجانية':'Your free listings are used' }}</h2>
+      <p>{{ i18n.locale()==='ar'?'لقد استخدمت الإعلانين المجانيين المتاحين لحسابك. لن يتم نشر هذا الإعلان إلا بعد الاشتراك في إحدى الباقات المتاحة.':'You have used the two free listings included with your account. Choose a plan before publishing this listing.' }}</p>
+      <p class="draft-note">{{ i18n.locale()==='ar'?'بيانات إعلانك ستظل موجودة في هذه الصفحة. ستُفتح الباقات في تبويب جديد حتى لا تفقد ما أدخلته.':'Your listing details will remain on this page. Plans open in a new tab so you do not lose your work.' }}</p>
+      <div class="dialog-actions">
+        <a class="btn btn-gold" routerLink="/packages" target="_blank" rel="noopener" (click)="closePublishingLimit()">{{ i18n.locale()==='ar'?'عرض الباقات والاشتراك':'View plans' }}</a>
+        <button class="btn dialog-secondary" type="button" (click)="closePublishingLimit()">{{ i18n.locale()==='ar'?'العودة للإعلان':'Return to listing' }}</button>
+      </div>
+    </section>
+  </div>
+}
