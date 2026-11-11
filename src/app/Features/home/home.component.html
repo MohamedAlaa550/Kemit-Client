@@ -3,7 +3,7 @@
   <div class="slides">
     @for (slide of slides(); track slide.src; let index = $index) {
       <figure class="slide" [class.active]="activeSlide()===index" [attr.aria-hidden]="activeSlide()!==index">
-        <img [src]="slide.src" width="1778" height="600" [alt]="i18n.locale()==='ar'?slide.altAr:slide.altEn" [attr.fetchpriority]="index===0?'high':null" (error)="onSlideImageError(index)">
+        <img [src]="slide.src" width="1778" height="600" [alt]="i18n.locale()==='ar'?slide.altAr:slide.altEn" [attr.loading]="index===0?'eager':'lazy'" [attr.fetchpriority]="index===0?'high':'low'" decoding="async" (error)="onSlideImageError(index)">
       </figure>
     }
   </div>
