@@ -20,6 +20,7 @@ import { TranslationService } from '../../Core/I18n/translation.service';
 import { TranslatePipe } from '../../Shared/Pipes/translate.pipe';
 import { finalize } from 'rxjs';
 import { LocationNamePipe } from '../../Shared/Pipes/location-name.pipe';
+import { optimizeAvatar } from '../../Core/Utilities/image-file.util';
 
 @Component({
   selector: 'app-profile',
@@ -99,7 +100,7 @@ export class ProfileComponent {
     this.editingProfile.set(false);
   }
 
-  profileAvatarChanged(event: Event) {
+  async profileAvatarChanged(event: Event): Promise<void> {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0] ?? null;
     if (file && file.size > 2 * 1024 * 1024) {
@@ -108,7 +109,7 @@ export class ProfileComponent {
       this.notices.show(this.i18n.locale() === 'ar' ? 'حجم الصورة يجب ألا يتجاوز 2 ميجابايت.' : 'The image must not exceed 2 MB.', 'error');
       return;
     }
-    this.selectedAvatar.set(file);
+    this.selectedAvatar.set(file ? await optimizeAvatar(file) : null);
   }
 
   saveProfile() {

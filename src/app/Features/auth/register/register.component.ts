@@ -8,6 +8,7 @@ import { NotificationService } from '../../../Core/Services/notification.service
 import { SeoService } from '../../../Core/Services/seo.service';
 import { GoogleSignInComponent } from '../../../Shared/Components/google-sign-in/google-sign-in.component';
 import { matchFields } from '../../../Shared/Validators/form.validators';
+import { optimizeAvatar } from '../../../Core/Utilities/image-file.util';
 
 @Component({
   selector: 'app-register',
@@ -52,7 +53,7 @@ export class RegisterComponent {
 
   text(ar: string, en: string): string { return this.i18n.locale() === 'ar' ? ar : en; }
 
-  file(event: Event): void {
+  async file(event: Event): Promise<void> {
     const input = event.target as HTMLInputElement;
     const selected = input.files?.[0] ?? null;
     if (!selected) { this.avatar.set(null); return; }
@@ -69,7 +70,7 @@ export class RegisterComponent {
       this.notices.show(this.text('حجم الصورة يجب ألا يتجاوز 2 ميجابايت.', 'The image must not exceed 2 MB.'), 'error');
       return;
     }
-    this.avatar.set(selected);
+    this.avatar.set(await optimizeAvatar(selected));
   }
 
   submit(): void {
