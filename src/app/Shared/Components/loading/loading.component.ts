@@ -12,7 +12,7 @@ import { TranslationService } from '../../../Core/I18n/translation.service';
         <div class="loading-content">
           <div class="logo-wrap">
             <span class="orbit" aria-hidden="true"></span>
-            <img src="assets/brand/kemit-logo.jpeg" width="76" height="76" alt="" />
+            <img src="assets/brand/kemit-logo-128.png" width="76" height="76" alt="" />
           </div>
           <strong>{{ i18n.locale() === 'ar' ? 'جارٍ التحميل' : 'Loading' }}<span class="dots" aria-hidden="true"><i>.</i><i>.</i><i>.</i></span></strong>
         </div>
