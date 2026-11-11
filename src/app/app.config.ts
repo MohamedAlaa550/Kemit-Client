@@ -4,7 +4,6 @@ import {
   provideAppInitializer,
   provideBrowserGlobalErrorListeners,
 } from '@angular/core';
-import { firstValueFrom } from 'rxjs';
 import { registerLocaleData } from '@angular/common';
 import localeArEg from '@angular/common/locales/ar-EG';
 import { provideRouter, withInMemoryScrolling } from '@angular/router';
@@ -24,7 +23,12 @@ registerLocaleData(localeArEg, 'ar-EG');
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
-    provideAppInitializer(() => firstValueFrom(inject(AuthService).restoreSession())),
+    // Restore cookie-based authentication in the background so public pages are
+    // not blocked by API latency. Route guards still await this same request
+    // before allowing access to protected or guest-only pages.
+    provideAppInitializer(() => {
+      inject(AuthService).restoreSession().subscribe();
+    }),
     provideRouter(
       routes,
       withInMemoryScrolling({ scrollPositionRestoration: 'top' }),

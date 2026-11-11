@@ -24,6 +24,7 @@ export class AuthService {
   private readonly currentUserState = signal<User | null>(null);
   private readonly authenticatedState = signal(false);
   private refreshRequest?: Observable<AuthResponse>;
+  private restoreRequest?: Observable<AuthResponse | null>;
   private refreshTimer?: ReturnType<typeof setTimeout>;
   readonly currentUser = this.currentUserState.asReadonly();
   readonly isAuthenticated = this.authenticatedState.asReadonly();
@@ -78,10 +79,11 @@ export class AuthService {
 
   restoreSession() {
     if (!this.platform.checkPlateform()) return of(null);
+    if (this.restoreRequest) return this.restoreRequest;
     // Remove tokens left by older builds; authentication now relies only on HttpOnly cookies.
     localStorage.removeItem('kemit_access_token');
     localStorage.removeItem('kemit_refresh_token');
-    return this.http.get<AuthResponse | null>(`${environment.apiUrl}/Auth/session`, {
+    this.restoreRequest = this.http.get<AuthResponse | null>(`${environment.apiUrl}/Auth/session`, {
       headers: { 'X-Session-Probe': '1' },
     }).pipe(
       tap((session) => session ? this.saveSession(session) : this.clearSession()),
@@ -89,7 +91,9 @@ export class AuthService {
         this.clearSession();
         return of(null);
       }),
+      shareReplay({ bufferSize: 1, refCount: false }),
     );
+    return this.restoreRequest;
   }
 
   getCurrentUser() {
